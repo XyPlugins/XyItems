@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.xyplugin'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    // XyCore API is supplied by the required server plugin and is never packaged in this JAR.
+    xyCoreStub {
+        java.srcDir 'src/stub/java'
+    }
+    main {
+        compileClasspath += xyCoreStub.output
+    }
+}
+
+dependencies {
+    // Bundled compile-only APIs keep the legacy 1.12.2 build reproducible after old snapshots disappear.
+    compileOnly files('libs/paper-api-1.12.2-R0.1-SNAPSHOT.jar')
+    compileOnly files('libs/bungeecord-chat-1.12-SNAPSHOT.jar')
+    xyCoreStubCompileOnly files('libs/paper-api-1.12.2-R0.1-SNAPSHOT.jar')
+    xyCoreStubCompileOnly files('libs/bungeecord-chat-1.12-SNAPSHOT.jar')
+}
+
+compileJava.dependsOn compileXyCoreStubJava
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    archiveFileName = "XyItems-${project.version}.jar"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Implementation-Title': 'XyItems',
+                'Implementation-Version': project.version
+        )
+    }
+}

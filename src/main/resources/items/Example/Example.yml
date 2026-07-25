@@ -1,0 +1,169 @@
+# XyItems 示例物品文件
+#
+# 文件位置（首次启动后）：plugins/XyItems/items/Example/Example.yml
+# XyItems 会递归读取 items 文件夹中的所有 .yml / .yaml 文件。
+# 一个文件可以写多个物品；本文件同时示范“可鉴定符文”和“普通材料”。
+# 修改完成后执行 /xyitems reload。若配置有错误，旧配置会继续生效，不会半加载。
+
+items:
+  # 物品内部 ID：用于 /xyitems give <玩家> example_rune [数量]。
+  # ID 不要重复；英文、数字、下划线和短横线最便于其他 XY 插件调用。
+  example_rune:
+    # Bukkit/Spigot 1.12.2 的 Material 名称。
+    material: NETHER_STAR
+
+    # 旧版物品耐久值/子类型数据；大多数物品填写 0。
+    data: 0
+
+    # 未鉴定状态下显示的名称。颜色代码使用 &。
+    display-name: '&f未鉴定的元素符文'
+
+    # 未鉴定状态的 Lore。此处不写随机属性，避免被 AP 当作已生效属性读取。
+    lore:
+      - '&7蕴含未知力量的符文。'
+      - '&e右键鉴定，获得随机品质和属性。'
+      - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+
+    identify:
+      # true 表示该物品可由玩家主手右键鉴定；背包没有空格时不会执行鉴定。
+      # false 则只是普通 XyItems 物品。
+      enabled: true
+
+      # qualities 下每个节点都是一种鉴定结果。节点 ID 可以任意命名，
+      # 例如 1、2、bm、epic 都可以；它只用于内部识别，不会直接显示给玩家。
+      qualities:
+        normal:
+          # 权重，不是百分比。所有品质的 weight 相加后按比例随机。
+          weight: 45
+
+          # 玩家可见的品质名称与颜色。
+          name: '普通'
+          color: '&f'
+
+          # 鉴定完成后的物品名称。
+          display-name: '<品质.颜色><品质.名称>元素符文'
+
+          # 鉴定完成后的 Lore。以下占位符由 XyItems 在生成时替换：
+          # <品质.颜色> / <quality.color>：上方 color 的值。
+          # <品质.名称> / <quality.name>：上方 name 的值。
+          # <%damage%>、%damage%、<damage>：attributes.damage 随机出的数值。
+          # <health>：attributes.health 随机出的数值。
+          # <防御力>：attributes.防御力 随机出的数值。
+          # AttributePlus/AP 读取 Lore 时，可按你的 AP 规则直接识别这些最终文本。
+          lore:
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+            - '&f✦ 物品品质: <品质.颜色><品质.名称>'
+            - '&f✦ 攻击力: &c<%damage%>'
+            - '&f✦ 生命力: &a<health>'
+            - '&f✦ 防御力: &b<防御力>'
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+
+          # 属性键就是 Lore 内使用的占位符名。damage 由本服重新定义即可，
+          # XyItems 只负责随机、替换和写入 Lore，不会强行定义 AP 的属性语义。
+          attributes:
+            damage:
+              min: 3
+              max: 6
+              format: '0'
+            health:
+              min: 10
+              max: 18
+              format: '0'
+            防御力:
+              min: 1
+              max: 2
+              format: '0'
+
+        fine:
+          weight: 25
+          name: '精良'
+          color: '&a'
+          display-name: '<品质.颜色><品质.名称>元素符文'
+          lore:
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+            - '&f✦ 物品品质: <品质.颜色><品质.名称>'
+            - '&f✦ 攻击力: &c<%damage%>'
+            - '&f✦ 生命力: &a<health>'
+            - '&f✦ 防御力: &b<防御力>'
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+          attributes:
+            damage: { min: 7, max: 11, format: '0' }
+            health: { min: 20, max: 32, format: '0' }
+            防御力: { min: 3, max: 5, format: '0' }
+
+        rare:
+          weight: 15
+          name: '稀有'
+          color: '&b'
+          display-name: '<品质.颜色><品质.名称>元素符文'
+          lore:
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+            - '&f✦ 物品品质: <品质.颜色><品质.名称>'
+            - '&f✦ 攻击力: &c<%damage%>'
+            - '&f✦ 生命力: &a<health>'
+            - '&f✦ 防御力: &b<防御力>'
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+          attributes:
+            damage: { min: 12, max: 17, format: '0' }
+            health: { min: 35, max: 52, format: '0' }
+            防御力: { min: 6, max: 9, format: '0' }
+
+        epic:
+          weight: 8
+          name: '史诗'
+          color: '&d'
+          display-name: '<品质.颜色><品质.名称>元素符文'
+          lore:
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+            - '&f✦ 物品品质: <品质.颜色><品质.名称>'
+            - '&f✦ 攻击力: &c<%damage%>'
+            - '&f✦ 生命力: &a<health>'
+            - '&f✦ 防御力: &b<防御力>'
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+          attributes:
+            damage: { min: 18, max: 25, format: '0' }
+            health: { min: 55, max: 78, format: '0' }
+            防御力: { min: 10, max: 14, format: '0' }
+
+        legendary:
+          weight: 5
+          name: '传说'
+          color: '&6'
+          display-name: '<品质.颜色><品质.名称>元素符文'
+          lore:
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+            - '&f✦ 物品品质: <品质.颜色><品质.名称>'
+            - '&f✦ 攻击力: &c<%damage%>'
+            - '&f✦ 生命力: &a<health>'
+            - '&f✦ 防御力: &b<防御力>'
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+          attributes:
+            damage: { min: 26, max: 36, format: '0' }
+            health: { min: 80, max: 115, format: '0' }
+            防御力: { min: 15, max: 21, format: '0' }
+
+        mythic:
+          weight: 2
+          name: '神话'
+          color: '&c'
+          display-name: '<品质.颜色><品质.名称>元素符文'
+          lore:
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+            - '&f✦ 物品品质: <品质.颜色><品质.名称>'
+            - '&f✦ 攻击力: &c<%damage%>'
+            - '&f✦ 生命力: &a<health>'
+            - '&f✦ 防御力: &b<防御力>'
+            - '&7┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅'
+          attributes:
+            damage: { min: 37, max: 50, format: '0' }
+            health: { min: 120, max: 170, format: '0' }
+            防御力: { min: 22, max: 30, format: '0' }
+
+  # 第二个物品示例：没有 identify 节，因此它是普通材料，不会响应右键鉴定。
+  example_forge_crystal:
+    material: PRISMARINE_CRYSTALS
+    data: 0
+    display-name: '&b锻造结晶'
+    lore:
+      - '&7可作为后续 XyForge、XyEnhance 的消耗材料。'
+      - '&8物品 ID: example_forge_crystal'

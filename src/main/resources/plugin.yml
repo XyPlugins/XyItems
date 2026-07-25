@@ -1,0 +1,27 @@
+name: XyItems
+version: '1.0'
+main: org.xyplugin.xyitems.XyItemsPlugin
+api-version: '1.12'
+author: XyPlugins
+description: Config-driven XY item library and identification base.
+depend: [XyCore]
+
+commands:
+  xyitems:
+    description: XyItems main command
+    usage: /xyitems <give|reload|list|info|help>
+    aliases: [xyitem]
+
+permissions:
+  xyitems.use:
+    description: Allows access to XyItems help and item identification.
+    default: true
+  xyitems.list:
+    description: Allows listing registered XyItems definitions.
+    default: op
+  xyitems.give:
+    description: Allows giving XyItems items.
+    default: op
+  xyitems.reload:
+    description: Allows reloading XyItems configurations.
+    default: op
