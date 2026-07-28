@@ -36,3 +36,10 @@
 - 在生产用 Spigot/Paper 1.12.2 与部署的 XyCore JAR 上启用插件。
 - 将示例 Lore 标签与服务器最终 AttributePlus/AP 规则对齐后，再向玩家正式发放物品。
 - 后续 XyForge、XyEnhance、XyExchange 应调用 `XyItemsApi#hasDeliverySpace` 和 `XyItemsApi#deliverItems`，不要直接调用 `Inventory#addItem`。
+
+## 1.0.1 维护记录
+
+- 根据服主要求新增 `/xyitem get <物品ID> [数量]` 玩家自取指令及 `/xyi` 主命令缩写。
+- AI 辅助将 `get` 与既有 `give` 发放过程收敛到同一实现，避免数量校验、NBT 创建和背包容量规则发生差异。
+- 出于安全考虑新增独立权限 `xyitems.get`，默认值为 `op`；服务器可按实际的可信指令绑定或权限组进行授权。
+- 执行 `./gradlew.bat clean build --no-daemon` 成功，并核对成品 `plugin.yml` 的版本、别名与权限声明。

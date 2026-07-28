@@ -1,5 +1,5 @@
 name: XyItems
-version: '1.0'
+version: '1.0.1'
 main: org.xyplugin.xyitems.XyItemsPlugin
 api-version: '1.12'
 author: XyPlugins
@@ -9,8 +9,8 @@ depend: [XyCore]
 commands:
   xyitems:
     description: XyItems main command
-    usage: /xyitems <give|reload|list|info|help>
-    aliases: [xyitem]
+    usage: /xyitems <get|give|reload|list|info|help>
+    aliases: [xyitem, xyi]
 
 permissions:
   xyitems.use:
@@ -21,6 +21,9 @@ permissions:
     default: op
   xyitems.give:
     description: Allows giving XyItems items.
+    default: op
+  xyitems.get:
+    description: Allows players to obtain configured XyItems items for themselves.
     default: op
   xyitems.reload:
     description: Allows reloading XyItems configurations.

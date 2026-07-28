@@ -1,6 +1,6 @@
 # XyItems
 
-XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0 提供带 NBT 身份标识的物品定义、右键随机鉴定、六品质示例、Lore 属性渲染，以及可供 XyForge、XyEnhance、XyExchange、XySoulSpace 等插件复用的物品与库存交付 API。
+XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.1 提供带 NBT 身份标识的物品定义、右键随机鉴定、六品质示例、Lore 属性渲染，以及可供 XyForge、XyEnhance、XyExchange、XySoulSpace 等插件复用的物品与库存交付 API。
 
 ## 运行环境
 
@@ -12,7 +12,7 @@ XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.
 
 ## 安装
 
-1. 将 `XyCore` 与 `XyItems-1.0.jar` 放入服务器 `plugins/`。
+1. 将 `XyCore` 与 `XyItems-1.0.1.jar` 放入服务器 `plugins/`。
 2. 启动服务器一次。
 3. 默认示例会释放到：
 
@@ -29,12 +29,13 @@ XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.
 | 指令 | 说明 | 权限 |
 | --- | --- | --- |
 | `/xyitems help` | 查看帮助 | 无 |
+| `/xyitem get <物品ID> [数量]` | 玩家为自己取得物品，数量默认 1 | `xyitems.get` |
 | `/xyitems list [页码]` | 查看已加载物品 ID | `xyitems.list` |
 | `/xyitems info <物品ID>` | 查看物品来源与鉴定状态 | `xyitems.list` |
 | `/xyitems give <玩家> <物品ID> [数量]` | 给予未鉴定/基础物品 | `xyitems.give` |
 | `/xyitems reload` | 重载 `items/` 中的全部配置 | `xyitems.reload` |
 
-别名：`/xyitem`。
+主命令别名：`/xyitem`、`/xyi`，因此也可使用 `/xyi get <物品ID> [数量]`。
 
 ## 权限
 
@@ -43,6 +44,7 @@ XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.
 | `xyitems.use` | `true` | 允许右键触发 XyItems 鉴定 |
 | `xyitems.list` | `op` | 允许 list 和 info |
 | `xyitems.give` | `op` | 允许 give |
+| `xyitems.get` | `op` | 允许玩家为自己取得配置物品 |
 | `xyitems.reload` | `op` | 允许 reload |
 
 ## 配置目录
@@ -113,7 +115,7 @@ XyItems 不硬编码 `damage`、`health`、`防御力` 的游戏含义。它只�
 所有由 XyItems 玩家流程产生物品的路径都遵循同一条前置规则：**主背包 36 格中必须至少有一个空格，才能执行下一步。**
 
 - 右键鉴定前先检查空格；没有空格时不扣除未鉴定物品，也不随机品质。
-- `/xyitems give` 会先检查容纳全部目标堆叠所需的空格；空间不足时不部分发放、不掉落到地面。
+- `/xyitem get` 与 `/xyitems give` 都会先检查容纳全部目标堆叠所需的空格；空间不足时不部分发放、不掉落到地面。
 - 提示统一读取 XyCore 的 `messages.prefix`，默认效果为：`[XyCore]您的背包已满无法容纳多余物品。`
 - 后续 XyForge、XyEnhance、XyExchange 应调用 XyItems API 的 `hasDeliverySpace` 与 `deliverItems`，不要直接 `Inventory#addItem`。
 
@@ -157,7 +159,7 @@ if (api.hasDeliverySpace(player, 1) && item.isPresent()) {
 产物位于：
 
 ```text
-build/libs/XyItems-1.0.jar
+build/libs/XyItems-1.0.1.jar
 ```
 
 ## 后续方向

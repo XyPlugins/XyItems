@@ -20,7 +20,7 @@ import org.xyplugin.xyitems.config.ItemDefinition;
 /** /xyitems command and completion handler. */
 public final class XyItemsCommand implements CommandExecutor, TabCompleter {
     private static final int LIST_PAGE_SIZE = 8;
-    private static final int MAX_GIVE_AMOUNT = 2304;
+    private static final int MAX_COMMAND_AMOUNT = 2304;
     private final XyItemsPlugin plugin;
 
     public XyItemsCommand(XyItemsPlugin plugin) {
@@ -37,6 +37,7 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
         String subcommand = args[0].toLowerCase(Locale.ROOT);
         if ("list".equals(subcommand)) return list(sender, args);
         if ("info".equals(subcommand)) return info(sender, args);
+        if ("get".equals(subcommand)) return get(sender, args);
         if ("give".equals(subcommand)) return give(sender, args);
         if ("reload".equals(subcommand)) return reload(sender);
         sendHelp(sender);
@@ -98,21 +99,39 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
             plugin.send(sender, plugin.formatMessage("player-not-found", "{player}", args[1]));
             return true;
         }
-        Optional<ItemDefinition> definition = plugin.getRegistry().find(args[2]);
+        return deliverItem(sender, target, args[2], args.length > 3 ? args[3] : null, true);
+    }
+
+    private boolean get(CommandSender sender, String[] args) {
+        if (!requirePermission(sender, "xyitems.get")) return true;
+        if (!(sender instanceof Player)) {
+            plugin.send(sender, plugin.message("players-only"));
+            return true;
+        }
+        if (args.length < 2) {
+            plugin.send(sender, "&c用法: /xyitem get <物品ID> [数量]");
+            return true;
+        }
+        return deliverItem(sender, (Player) sender, args[1], args.length > 2 ? args[2] : null, false);
+    }
+
+    private boolean deliverItem(CommandSender sender, Player target, String itemId,
+                                String amountText, boolean administrativeGive) {
+        Optional<ItemDefinition> definition = plugin.getRegistry().find(itemId);
         if (!definition.isPresent()) {
-            plugin.send(sender, plugin.formatMessage("item-not-found", "{item}", args[2]));
+            plugin.send(sender, plugin.formatMessage("item-not-found", "{item}", itemId));
             return true;
         }
 
         int amount = 1;
-        if (args.length > 3) {
+        if (amountText != null) {
             try {
-                amount = Integer.parseInt(args[3]);
+                amount = Integer.parseInt(amountText);
             } catch (NumberFormatException ignored) {
                 amount = 0;
             }
         }
-        if (amount <= 0 || amount > MAX_GIVE_AMOUNT) {
+        if (amount <= 0 || amount > MAX_COMMAND_AMOUNT) {
             plugin.send(sender, plugin.message("invalid-amount"));
             return true;
         }
@@ -130,9 +149,11 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
         }
 
         target.updateInventory();
-        plugin.send(sender, plugin.formatMessage("item-given", "{player}", target.getName(), "{amount}",
-                String.valueOf(amount), "{item}", definition.get().getId()));
-        if (sender != target) {
+        if (administrativeGive) {
+            plugin.send(sender, plugin.formatMessage("item-given", "{player}", target.getName(), "{amount}",
+                    String.valueOf(amount), "{item}", definition.get().getId()));
+        }
+        if (!administrativeGive || sender != target) {
             plugin.send(target, plugin.formatMessage("item-received", "{amount}", String.valueOf(amount),
                     "{item}", definition.get().getId()));
         }
@@ -150,7 +171,17 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        for (String line : plugin.getConfig().getStringList("messages.help")) plugin.send(sender, line);
+        boolean includesGet = false;
+        for (String line : plugin.getConfig().getStringList("messages.help")) {
+            String normalized = line.toLowerCase(Locale.ROOT);
+            if (normalized.contains("/xyitem get") || normalized.contains("/xyitems get")
+                    || normalized.contains("/xyi get")) {
+                includesGet = true;
+            }
+            plugin.send(sender, line);
+        }
+        // Existing 1.0 installations keep their customized config.yml, so add only the missing help line at runtime.
+        if (!includesGet) plugin.send(sender, "&e/xyitem get <物品ID> [数量] &7获得物品");
     }
 
     private boolean requirePermission(CommandSender sender, String permission) {
@@ -171,7 +202,7 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return complete(args[0], Arrays.asList("give", "list", "info", "reload", "help"));
+            return complete(args[0], Arrays.asList("get", "give", "list", "info", "reload", "help"));
         }
         if (args.length == 2 && "give".equalsIgnoreCase(args[0])) {
             List<String> names = new ArrayList<String>();
@@ -180,6 +211,12 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && "give".equalsIgnoreCase(args[0])) {
             return complete(args[2], plugin.getRegistry().getIds());
+        }
+        if (args.length == 2 && "get".equalsIgnoreCase(args[0])) {
+            return complete(args[1], plugin.getRegistry().getIds());
+        }
+        if (args.length == 3 && "get".equalsIgnoreCase(args[0])) {
+            return complete(args[2], Arrays.asList("1", "16", "32", "64"));
         }
         if (args.length == 2 && "info".equalsIgnoreCase(args[0])) {
             return complete(args[1], plugin.getRegistry().getIds());
