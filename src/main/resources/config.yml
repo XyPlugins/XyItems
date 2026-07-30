@@ -1,4 +1,4 @@
-# XyItems v1.0.1 global configuration.
+# XyItems v1.0.3 global configuration.
 # Item definitions are loaded recursively from plugins/XyItems/items/**/*.yml.
 
 settings:
@@ -20,7 +20,7 @@ messages:
   reload-failed: '&c重载失败，已保留当前正在使用的物品配置。'
   no-items: '&e当前没有已加载的物品定义。'
   help:
-    - '&bXyItems &7v1.0.1'
+    - '&bXyItems &7v1.0.3'
     - '&e/xyitem get <物品ID> [数量] &7获得物品'
     - '&e/xyitems list &7查看已加载物品'
     - '&e/xyitems give <玩家> <物品ID> [数量] &7给予物品'

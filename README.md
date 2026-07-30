@@ -1,6 +1,6 @@
-# XyItems 1.0.2
+# XyItems 1.0.3
 
-XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.2 提供带 NBT 身份标识的物品定义、右键随机鉴定、六品质示例、Lore 属性渲染，以及供XyForgeCrafting读取的失败/品质最终权重与单次抽取API。
+XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.3 提供带 NBT 身份标识的物品定义、右键随机鉴定、品质与属性渲染，以及供XyForgeCrafting读取的失败/结果最终权重与单次抽取API。
 
 ## 运行环境
 
@@ -12,7 +12,7 @@ XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.
 
 ## 安装
 
-1. 将 `XyCore` 与 `XyItems-1.0.2.jar` 放入服务器 `plugins/`。
+1. 将 `XyCore` 与 `XyItems-1.0.3.jar` 放入服务器 `plugins/`。
 2. 启动服务器一次。
 3. 默认示例会释放到：
 
@@ -127,6 +127,28 @@ items:
 
 `forge.failure.weight` 和所有 `identify.qualities.*.weight` 参加同一次最终抽取。权重不强制写成100，但GUI会按总和归一化显示百分比。
 
+`forge.failure.weight` 必须明确写出，可以填写 `0`，表示该物品锻造时不会抽中失败；完全漏写会被配置校验拒绝。品质仍然至少需要一个，并且每个品质权重必须大于0。例如只有一个“传说”品质时：
+
+```yaml
+forge:
+  failure:
+    weight: 0
+    name: '锻造失败'
+    color: '&c'
+identify:
+  enabled: true
+  qualities:
+    legendary:
+      weight: 1
+      name: '传说'
+      color: '&6'
+      display-name: '&6传说之剑'
+      lore:
+        - '&7必定锻造成功。'
+```
+
+最终归一化概率为失败 `0%`、传说 `100%`。普通鉴定同样只会得到传说结果。
+
 当失败概率为30%，原六品质比例为 `28/22/18/14/10/8` 时，最终权重可以写成：
 
 ```text
@@ -223,7 +245,7 @@ if (roll.isSuccess()) {
 产物位于：
 
 ```text
-build/libs/XyItems-1.0.2.jar
+build/libs/XyItems-1.0.3.jar
 ```
 
 ## 后续方向

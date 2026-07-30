@@ -1,0 +1,19 @@
+items:
+  guaranteed_legendary:
+    material: DIAMOND_SWORD
+    display-name: '&f未鉴定之剑'
+    forge:
+      failure:
+        weight: 0
+        name: '锻造失败'
+        color: '&c'
+    identify:
+      enabled: true
+      qualities:
+        legendary:
+          weight: 1
+          name: '传说'
+          color: '&6'
+          display-name: '&6传说之剑'
+          lore:
+            - '&7必定成功。'

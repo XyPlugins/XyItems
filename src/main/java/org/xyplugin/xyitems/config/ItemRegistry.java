@@ -140,9 +140,12 @@ public final class ItemRegistry {
         if (qualities.isEmpty()) {
             throw new IllegalArgumentException("forge.failure 必须与已启用的 identify.qualities 一起使用。");
         }
+        if (!failure.contains("weight")) {
+            throw new IllegalArgumentException("forge.failure 必须明确配置 weight，可填写 0。");
+        }
         double weight = failure.getDouble("weight", 0D);
-        if (Double.isNaN(weight) || Double.isInfinite(weight) || weight <= 0D) {
-            throw new IllegalArgumentException("forge.failure.weight 必须大于 0。");
+        if (Double.isNaN(weight) || Double.isInfinite(weight) || weight < 0D) {
+            throw new IllegalArgumentException("forge.failure.weight 必须大于或等于 0。");
         }
         String name = failure.getString("name", "锻造失败");
         String color = failure.getString("color", "&c");
