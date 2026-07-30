@@ -17,7 +17,7 @@ import org.xyplugin.xyitems.listener.ItemIdentifyListener;
 import org.xyplugin.xyitems.service.InventoryDeliveryService;
 import org.xyplugin.xyitems.util.Text;
 
-/** XyItems v1.0 entry point. */
+/** XyItems 1.0.2 entry point for Paper/Spigot 1.12.2. */
 public final class XyItemsPlugin extends JavaPlugin {
     private static XyItemsPlugin instance;
 

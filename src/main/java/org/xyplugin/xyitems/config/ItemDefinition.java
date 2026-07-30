@@ -5,10 +5,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.xyplugin.xyitems.api.ForgeOutcomeProfile;
 import org.xyplugin.xyitems.util.Text;
 
 /** Immutable item definition assembled from one YAML item section. */
@@ -19,15 +21,17 @@ public final class ItemDefinition {
     private final String displayName;
     private final List<String> lore;
     private final Map<String, QualityDefinition> qualities;
+    private final ForgeFailureDefinition forgeFailure;
 
     public ItemDefinition(String id, Material material, short data, String displayName, List<String> lore,
-                          Map<String, QualityDefinition> qualities) {
+                          Map<String, QualityDefinition> qualities, ForgeFailureDefinition forgeFailure) {
         this.id = id;
         this.material = material;
         this.data = data;
         this.displayName = displayName;
         this.lore = Collections.unmodifiableList(new ArrayList<String>(lore));
         this.qualities = Collections.unmodifiableMap(new LinkedHashMap<String, QualityDefinition>(qualities));
+        this.forgeFailure = forgeFailure;
     }
 
     public String getId() {
@@ -42,13 +46,41 @@ public final class ItemDefinition {
         return qualities;
     }
 
+    public Optional<ForgeOutcomeProfile> createForgeOutcomeProfile() {
+        if (forgeFailure == null || qualities.isEmpty()) return Optional.empty();
+        double total = forgeFailure.getWeight();
+        for (QualityDefinition quality : qualities.values()) total += quality.getWeight();
+        if (Double.isNaN(total) || Double.isInfinite(total) || total <= 0D) return Optional.empty();
+
+        List<ForgeOutcomeProfile.Outcome> outcomes = new ArrayList<ForgeOutcomeProfile.Outcome>();
+        outcomes.add(new ForgeOutcomeProfile.Outcome(ForgeOutcomeProfile.Outcome.Type.FAILURE, "failure",
+                forgeFailure.getName(), forgeFailure.getColor(), forgeFailure.getWeight(),
+                forgeFailure.getWeight() * 100D / total));
+        for (QualityDefinition quality : qualities.values()) {
+            outcomes.add(new ForgeOutcomeProfile.Outcome(ForgeOutcomeProfile.Outcome.Type.QUALITY,
+                    quality.getId(), quality.getName(), quality.getColor(), quality.getWeight(),
+                    quality.getWeight() * 100D / total));
+        }
+        return Optional.of(new ForgeOutcomeProfile(id, outcomes));
+    }
+
     public ItemStack createUnidentified(int amount) {
         return createItem(displayName, lore, Collections.<String, String>emptyMap(), amount);
     }
 
     public IdentifiedResult createIdentified(int amount) {
         QualityDefinition quality = chooseQuality();
-        if (quality == null) return null;
+        return quality == null ? null : createIdentified(quality, amount);
+    }
+
+    /** Builds an exact quality and deliberately performs no weighted quality selection. */
+    public IdentifiedResult createIdentified(String qualityId, int amount) {
+        if (qualityId == null) return null;
+        QualityDefinition quality = qualities.get(qualityId.trim());
+        return quality == null ? null : createIdentified(quality, amount);
+    }
+
+    private IdentifiedResult createIdentified(QualityDefinition quality, int amount) {
 
         Map<String, String> rolledAttributes = quality.rollAttributes();
         Map<String, String> placeholders = new LinkedHashMap<String, String>();
@@ -82,7 +114,7 @@ public final class ItemDefinition {
     private QualityDefinition chooseQuality() {
         double total = 0D;
         for (QualityDefinition quality : qualities.values()) total += quality.getWeight();
-        if (total <= 0D) return null;
+        if (Double.isNaN(total) || Double.isInfinite(total) || total <= 0D) return null;
 
         double selected = ThreadLocalRandom.current().nextDouble(total);
         double cursor = 0D;

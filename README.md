@@ -1,6 +1,6 @@
-# XyItems
+# XyItems 1.0.2
 
-XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.1 提供带 NBT 身份标识的物品定义、右键随机鉴定、六品质示例、Lore 属性渲染，以及可供 XyForge、XyEnhance、XyExchange、XySoulSpace 等插件复用的物品与库存交付 API。
+XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.2 提供带 NBT 身份标识的物品定义、右键随机鉴定、六品质示例、Lore 属性渲染，以及供XyForgeCrafting读取的失败/品质最终权重与单次抽取API。
 
 ## 运行环境
 
@@ -12,7 +12,7 @@ XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.
 
 ## 安装
 
-1. 将 `XyCore` 与 `XyItems-1.0.1.jar` 放入服务器 `plugins/`。
+1. 将 `XyCore` 与 `XyItems-1.0.2.jar` 放入服务器 `plugins/`。
 2. 启动服务器一次。
 3. 默认示例会释放到：
 
@@ -54,6 +54,7 @@ XyItems 会递归加载 `plugins/XyItems/items/` 下全部 `.yml` 与 `.yaml` �
 ```text
 plugins/XyItems/items/
 ├─ Example/Example.yml
+├─ ForgeItem/ExampleForgeItem.yml
 ├─ Runes/fire.yml
 ├─ Weapons/swords.yml
 └─ Materials/forge.yml
@@ -97,6 +98,56 @@ items:
 - `identify.qualities.<内部ID>`：一个品质结果。内部 ID 可以是 `1`、`bm`、`epic` 等任意非空名称。
 - `weight`：相对概率权重，不必等于百分比。
 - `attributes.<属性ID>`：可用 `{ min, max, format }` 定义随机值，也可直接写固定数值。
+
+## 锻造最终概率
+
+锻造成品在 `identify` 的同级增加一个 `forge.failure`：
+
+```yaml
+items:
+  example_forge_soul:
+    material: NETHER_STAR
+    display-name: '&f未鉴定的示例墨魂'
+    forge:
+      failure:
+        weight: 30
+        name: '锻造失败'
+        color: '&c'
+    identify:
+      enabled: true
+      qualities:
+        1:
+          weight: 19.6
+          name: '白描'
+          color: '&f'
+          display-name: '<品质.颜色>示例墨魂'
+          lore:
+            - '&7品质: <品质.颜色><品质.名称>'
+```
+
+`forge.failure.weight` 和所有 `identify.qualities.*.weight` 参加同一次最终抽取。权重不强制写成100，但GUI会按总和归一化显示百分比。
+
+当失败概率为30%，原六品质比例为 `28/22/18/14/10/8` 时，最终权重可以写成：
+
+```text
+失败 30
+白描 19.6
+萌黄 15.4
+气象 12.6
+归元 9.8
+传神 7
+浮世 5.6
+```
+
+总和正好为100。普通右键鉴定会忽略 `forge.failure`，只在六个品质的70权重之间重新归一化，因此普通鉴定仍保持原来的 `28/22/18/14/10/8` 品质比例。
+
+首次启动1.0.2会额外生成：
+
+```text
+plugins/XyItems/items/ForgeItem/ExampleForgeItem.yml
+```
+
+该文件包含可直接读取的完整示例。不要把锻造配方写到这里；材料、金币、图纸和失败退款写在XyForgeCrafting的 `ForgeRecipe` 中。
 
 ## Lore 占位符与 AP
 
@@ -144,6 +195,19 @@ if (api.hasDeliverySpace(player, 1) && item.isPresent()) {
 
 `createItem` 只构造物品，不会修改玩家背包；真正交付必须使用 `deliverItems`，以维持严格容量规则。已鉴定物品的原始随机值可通过 `api.getRolledAttributes(item)` 读取。
 
+锻造插件使用以下API：
+
+```java
+Optional<ForgeOutcomeProfile> profile = api.getForgeOutcomeProfile("example_forge_soul");
+ForgeRollResult roll = api.rollForgeOutcome("example_forge_soul");
+
+if (roll.isSuccess()) {
+    ItemStack identified = roll.getItem().get();
+}
+```
+
+`rollForgeOutcome` 只进行一次最终抽取。抽中品质后，返回值已经携带按该品质生成并写入品质、随机属性NBT的物品，不允许调用方再次随机品质。`createIdentifiedItem(itemId, qualityId, amount)` 只用于明确指定品质的受信任流程。
+
 ## 重载与错误处理
 
 `/xyitems reload` 会先完整校验所有配置文件。只要任一 YAML 或物品定义存在错误，本次重载就会失败并保留当前正在工作的配置，不会出现半加载状态。控制台会输出具体文件和节点。
@@ -159,7 +223,7 @@ if (api.hasDeliverySpace(player, 1) && item.isPresent()) {
 产物位于：
 
 ```text
-build/libs/XyItems-1.0.1.jar
+build/libs/XyItems-1.0.2.jar
 ```
 
 ## 后续方向

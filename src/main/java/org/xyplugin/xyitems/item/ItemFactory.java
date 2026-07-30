@@ -43,6 +43,21 @@ public final class ItemFactory {
         ItemDefinition.IdentifiedResult built = definition.createIdentified(1);
         if (built == null) return Optional.empty();
 
+        return tagIdentified(definition, built);
+    }
+
+    /** Creates one exact quality for forging without running the normal identification lottery. */
+    public Optional<ItemStack> createIdentified(ItemDefinition definition, String qualityId, int amount) {
+        if (definition == null || qualityId == null || amount <= 0) return Optional.empty();
+        ItemDefinition.IdentifiedResult built = definition.createIdentified(qualityId, amount);
+        if (built == null) return Optional.empty();
+        Optional<IdentificationResult> tagged = tagIdentified(definition, built);
+        return tagged.isPresent() ? Optional.of(tagged.get().getItem()) : Optional.<ItemStack>empty();
+    }
+
+    private Optional<IdentificationResult> tagIdentified(ItemDefinition definition,
+                                                          ItemDefinition.IdentifiedResult built) {
+
         ItemTagService tags = core.getItemTags();
         ItemStack item = built.getItem();
         item = tags.setString(item, ITEM_ID_TAG, definition.getId());

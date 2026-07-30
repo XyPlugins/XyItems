@@ -1,5 +1,5 @@
 name: XyItems
-version: '1.0.1'
+version: '1.0.2'
 main: org.xyplugin.xyitems.XyItemsPlugin
 api-version: '1.12'
 author: XyPlugins

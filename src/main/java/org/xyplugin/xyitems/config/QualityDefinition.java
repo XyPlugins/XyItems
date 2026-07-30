@@ -1,6 +1,7 @@
 package org.xyplugin.xyitems.config;
 
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public final class QualityDefinition {
         this.color = color;
         this.weight = weight;
         this.displayName = displayName;
-        this.lore = Collections.unmodifiableList(lore);
+        this.lore = Collections.unmodifiableList(new ArrayList<String>(lore));
         this.attributes = Collections.unmodifiableMap(new LinkedHashMap<String, NumberRange>(attributes));
     }
 

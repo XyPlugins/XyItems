@@ -10,6 +10,15 @@ import org.bukkit.inventory.ItemStack;
 public interface XyItemsApi {
     Optional<ItemStack> createItem(String itemId, int amount);
 
+    /** Creates an identified item at an explicitly selected quality without another quality roll. */
+    Optional<ItemStack> createIdentifiedItem(String itemId, String qualityId, int amount);
+
+    /** Returns the final failure/quality probability snapshot configured for forging this item. */
+    Optional<ForgeOutcomeProfile> getForgeOutcomeProfile(String itemId);
+
+    /** Performs exactly one final roll and embeds the identified result when successful. */
+    ForgeRollResult rollForgeOutcome(String itemId);
+
     Optional<String> getItemId(ItemStack item);
 
     Optional<String> getQualityId(ItemStack item);

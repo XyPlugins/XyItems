@@ -1,8 +1,9 @@
 package org.xyplugin.xyitems.api;
 
-import java.util.Optional;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.xyplugin.xyitems.XyItemsPlugin;
@@ -19,6 +20,52 @@ public final class XyItemsApiImpl implements XyItemsApi {
     public Optional<ItemStack> createItem(String itemId, int amount) {
         Optional<ItemDefinition> definition = plugin.getRegistry().find(itemId);
         return definition.isPresent() ? plugin.getItemFactory().createBase(definition.get(), amount) : Optional.empty();
+    }
+
+    @Override
+    public Optional<ItemStack> createIdentifiedItem(String itemId, String qualityId, int amount) {
+        Optional<ItemDefinition> definition = plugin.getRegistry().find(itemId);
+        return definition.isPresent()
+                ? plugin.getItemFactory().createIdentified(definition.get(), qualityId, amount)
+                : Optional.<ItemStack>empty();
+    }
+
+    @Override
+    public Optional<ForgeOutcomeProfile> getForgeOutcomeProfile(String itemId) {
+        Optional<ItemDefinition> definition = plugin.getRegistry().find(itemId);
+        return definition.isPresent() ? definition.get().createForgeOutcomeProfile() : Optional.empty();
+    }
+
+    @Override
+    public ForgeRollResult rollForgeOutcome(String itemId) {
+        Optional<ItemDefinition> definition = plugin.getRegistry().find(itemId);
+        if (!definition.isPresent()) return ForgeRollResult.unavailable(itemId);
+
+        Optional<ForgeOutcomeProfile> profile = definition.get().createForgeOutcomeProfile();
+        if (!profile.isPresent() || profile.get().getTotalWeight() <= 0D) {
+            return ForgeRollResult.unavailable(itemId);
+        }
+
+        double selected = ThreadLocalRandom.current().nextDouble(profile.get().getTotalWeight());
+        double cursor = 0D;
+        ForgeOutcomeProfile.Outcome selectedOutcome = null;
+        for (ForgeOutcomeProfile.Outcome outcome : profile.get().getOutcomes()) {
+            cursor += outcome.getWeight();
+            selectedOutcome = outcome;
+            if (selected < cursor) break;
+        }
+        if (selectedOutcome == null) return ForgeRollResult.unavailable(itemId);
+        if (selectedOutcome.isFailure()) {
+            return ForgeRollResult.failure(definition.get().getId(), selectedOutcome.getName(),
+                    selectedOutcome.getColor());
+        }
+
+        Optional<ItemStack> built = plugin.getItemFactory().createIdentified(
+                definition.get(), selectedOutcome.getId(), 1);
+        return built.isPresent()
+                ? ForgeRollResult.success(definition.get().getId(), selectedOutcome.getId(),
+                selectedOutcome.getName(), selectedOutcome.getColor(), built.get())
+                : ForgeRollResult.unavailable(itemId);
     }
 
     @Override

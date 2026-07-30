@@ -1,5 +1,15 @@
 # XyItems Changelog
 
+## 1.0.2 - 2026-07-30
+
+- 新增与 `identify` 同级的 `forge.failure` 配置，用失败和六品质组成一次最终权重抽取。
+- 新增不可变 `ForgeOutcomeProfile`，GUI展示和实际抽取读取同一份失败/品质数据结构。
+- 新增 `rollForgeOutcome`，抽中品质后立即生成该品质及随机属性，不再二次抽品质。
+- 新增 `createIdentifiedItem`，供受信任插件按明确品质创建成品。
+- 普通右键鉴定明确忽略锻造失败项，只在品质权重之间归一化。
+- 首次启动额外生成 `items/ForgeItem/ExampleForgeItem.yml`，示例为失败30%与六品质70%的最终分配。
+- 配置错误继续遵守全量校验和旧注册表保留规则。
+
 ## 1.0.1 - 2026-07-28
 
 - 新增玩家自取指令 `/xyitem get <物品ID> [数量]`，数量默认 `1`。

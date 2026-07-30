@@ -1,0 +1,88 @@
+# XyItems 锻造成品示例
+# 首次启动后生成到：plugins/XyItems/items/ForgeItem/ExampleForgeItem.yml
+# forge.failure 与六个品质的 weight 是一次最终结果权重，示例总和为 100。
+# 普通右键鉴定会忽略 forge.failure，只在六个品质之间按比例抽取。
+
+items:
+  example_forge_soul:
+    material: NETHER_STAR
+    data: 0
+    display-name: '&f未鉴定的示例墨魂'
+    lore:
+      - '&7可由 XyForgeCrafting 锻造获得。'
+
+    # 锻造失败也参加同一次最终权重抽取。
+    forge:
+      failure:
+        weight: 30
+        name: '锻造失败'
+        color: '&c'
+
+    identify:
+      enabled: true
+      qualities:
+        1:
+          weight: 19.6
+          name: '白描'
+          color: '&f'
+          display-name: '<品质.颜色>示例墨魂'
+          lore:
+            - '&7品质: <品质.颜色><品质.名称>'
+            - '&7攻击力: &c+<damage>'
+          attributes:
+            damage: { min: 3, max: 6, format: '0' }
+
+        2:
+          weight: 15.4
+          name: '萌黄'
+          color: '&a'
+          display-name: '<品质.颜色>示例墨魂'
+          lore:
+            - '&7品质: <品质.颜色><品质.名称>'
+            - '&7攻击力: &c+<damage>'
+          attributes:
+            damage: { min: 7, max: 11, format: '0' }
+
+        3:
+          weight: 12.6
+          name: '气象'
+          color: '&b'
+          display-name: '<品质.颜色>示例墨魂'
+          lore:
+            - '&7品质: <品质.颜色><品质.名称>'
+            - '&7攻击力: &c+<damage>'
+          attributes:
+            damage: { min: 12, max: 17, format: '0' }
+
+        4:
+          weight: 9.8
+          name: '归元'
+          color: '&d'
+          display-name: '<品质.颜色>示例墨魂'
+          lore:
+            - '&7品质: <品质.颜色><品质.名称>'
+            - '&7攻击力: &c+<damage>'
+          attributes:
+            damage: { min: 18, max: 23, format: '0' }
+
+        5:
+          weight: 7
+          name: '传神'
+          color: '&6'
+          display-name: '<品质.颜色>示例墨魂'
+          lore:
+            - '&7品质: <品质.颜色><品质.名称>'
+            - '&7攻击力: &c+<damage>'
+          attributes:
+            damage: { min: 24, max: 30, format: '0' }
+
+        6:
+          weight: 5.6
+          name: '浮世'
+          color: '&c'
+          display-name: '<品质.颜色>示例墨魂'
+          lore:
+            - '&7品质: <品质.颜色><品质.名称>'
+            - '&7攻击力: &c+<damage>'
+          attributes:
+            damage: { min: 31, max: 40, format: '0' }

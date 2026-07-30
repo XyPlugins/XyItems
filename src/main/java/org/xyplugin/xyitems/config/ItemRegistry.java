@@ -33,6 +33,8 @@ public final class ItemRegistry {
     public static void ensureExampleFile(JavaPlugin plugin) {
         File example = new File(plugin.getDataFolder(), "items/Example/Example.yml");
         if (!example.exists()) plugin.saveResource("items/Example/Example.yml", false);
+        File forgeExample = new File(plugin.getDataFolder(), "items/ForgeItem/ExampleForgeItem.yml");
+        if (!forgeExample.exists()) plugin.saveResource("items/ForgeItem/ExampleForgeItem.yml", false);
     }
 
     public static LoadResult load(File directory, Logger logger) {
@@ -123,7 +125,33 @@ public final class ItemRegistry {
         String displayName = section.getString("display-name", "&f" + id);
         List<String> lore = new ArrayList<String>(section.getStringList("lore"));
         Map<String, QualityDefinition> qualities = parseQualities(section, displayName, lore);
-        return new ItemDefinition(id, material, (short) rawData, displayName, lore, qualities);
+        ForgeFailureDefinition forgeFailure = parseForgeFailure(section, qualities);
+        return new ItemDefinition(id, material, (short) rawData, displayName, lore, qualities, forgeFailure);
+    }
+
+    private static ForgeFailureDefinition parseForgeFailure(ConfigurationSection itemSection,
+                                                              Map<String, QualityDefinition> qualities) {
+        ConfigurationSection forge = itemSection.getConfigurationSection("forge");
+        if (forge == null) return null;
+        ConfigurationSection failure = forge.getConfigurationSection("failure");
+        if (failure == null) {
+            throw new IllegalArgumentException("配置 forge 时必须包含 forge.failure 节点。");
+        }
+        if (qualities.isEmpty()) {
+            throw new IllegalArgumentException("forge.failure 必须与已启用的 identify.qualities 一起使用。");
+        }
+        double weight = failure.getDouble("weight", 0D);
+        if (Double.isNaN(weight) || Double.isInfinite(weight) || weight <= 0D) {
+            throw new IllegalArgumentException("forge.failure.weight 必须大于 0。");
+        }
+        String name = failure.getString("name", "锻造失败");
+        String color = failure.getString("color", "&c");
+        double totalWeight = weight;
+        for (QualityDefinition quality : qualities.values()) totalWeight += quality.getWeight();
+        if (Double.isNaN(totalWeight) || Double.isInfinite(totalWeight)) {
+            throw new IllegalArgumentException("forge.failure与品质总权重必须是有限数值。");
+        }
+        return new ForgeFailureDefinition(weight, name, color);
     }
 
     private static Map<String, QualityDefinition> parseQualities(ConfigurationSection itemSection,
@@ -160,6 +188,11 @@ public final class ItemRegistry {
                     : new ArrayList<String>(fallbackLore);
             qualities.put(id, new QualityDefinition(id, name, color, weight, displayName, lore,
                     parseAttributes(section.getConfigurationSection("attributes"))));
+        }
+        double totalWeight = 0D;
+        for (QualityDefinition quality : qualities.values()) totalWeight += quality.getWeight();
+        if (Double.isNaN(totalWeight) || Double.isInfinite(totalWeight) || totalWeight <= 0D) {
+            throw new IllegalArgumentException("identify.qualities总权重必须是有限且大于0的数值。");
         }
         return qualities;
     }
