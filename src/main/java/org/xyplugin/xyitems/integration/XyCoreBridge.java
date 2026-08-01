@@ -13,7 +13,6 @@ import org.xyplugin.xyitems.util.Text;
 /** Required XyCore integration: NBT tags, item provider registration, and common prefix. */
 public final class XyCoreBridge {
     private final JavaPlugin plugin;
-    private JavaPlugin corePlugin;
     private XyCoreApi api;
 
     public XyCoreBridge(JavaPlugin plugin) {
@@ -28,13 +27,17 @@ public final class XyCoreBridge {
         }
         try {
             api = XyCore.get();
-            corePlugin = (JavaPlugin) candidate;
+            api.getClass().getMethod("getMessagePrefix");
             if (api.getItemTags() == null || !api.getItemTags().isAvailable()) {
                 plugin.getLogger().severe("XyCore NBT item tags are unavailable. XyItems cannot safely identify items.");
                 return false;
             }
             plugin.getLogger().info("Connected to XyCore " + api.getVersion() + ".");
             return true;
+        } catch (NoSuchMethodException exception) {
+            plugin.getLogger().severe("XyItems requires XyCore 0.3.11 or newer for unified message prefixes.");
+            api = null;
+            return false;
         } catch (RuntimeException exception) {
             plugin.getLogger().severe("Could not access XyCore API: " + exception.getMessage());
             return false;
@@ -60,7 +63,6 @@ public final class XyCoreBridge {
     }
 
     public String getPrefix() {
-        if (corePlugin == null) return "&7[&bXyCore&7]&r";
-        return corePlugin.getConfig().getString("messages.prefix", "&7[&bXyCore&7]&r");
+        return api == null ? "&7[&bXyCore&7]&r" : api.getMessagePrefix();
     }
 }

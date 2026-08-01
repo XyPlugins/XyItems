@@ -1,5 +1,12 @@
 # XyItems Changelog
 
+## 1.0.5 - 2026-08-02
+
+- 玩家聊天提示前缀改为通过 `XyCoreApi#getMessagePrefix()` 统一读取 XyCore `messages.prefix`。
+- 启动时检查 XyCore 0.3.11+ 的前缀API，避免旧Core在玩家收到提示时才发生运行期错误。
+- 控制台日志继续保留 `[XyItems]` 插件名，不切换为统一玩家前缀。
+- 同步更新 `config.yml` 注释、README、AI使用记录和插件版本。
+
 ## 1.0.4 - 2026-08-01
 
 - 新增重构后的锻造成品短格式：`identify.display-name` 与 `identify.lore` 可作为全部品质的公共模板。

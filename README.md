@@ -1,18 +1,20 @@
-# XyItems 1.0.4
+# XyItems 1.0.5
 
-XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.4 提供带 NBT 身份标识的物品定义、右键随机鉴定、品质与属性渲染，以及供XyForgeCrafting读取的失败/结果最终权重与单次抽取API。
+XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.5 提供带 NBT 身份标识的物品定义、右键随机鉴定、品质与属性渲染、供XyForgeCrafting读取的失败/结果最终权重与单次抽取API，并统一使用XyCore玩家聊天前缀。
 
 ## 运行环境
 
 - Java 8+
 - Spigot/Paper 1.12.2
-- **XyCore（强制依赖）**
+- **XyCore 0.3.11+（强制依赖）**
 
 XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.12.2 NBT 标签服务来标识真实物品；未启用 XyCore 或 NBT 服务不可用时，XyItems 会停止启用，避免按名称或 Lore 误识别物品。
 
+从1.0.5开始，XyItems发送给玩家或命令发送者的聊天提示统一通过 `XyCoreApi#getMessagePrefix()` 读取 `plugins/XyCore/config.yml -> messages.prefix`。控制台日志仍使用 Bukkit 日志中的 `[XyItems]` 名称，方便排查具体插件。
+
 ## 安装
 
-1. 将 `XyCore` 与 `XyItems-1.0.4.jar` 放入服务器 `plugins/`。
+1. 将 `XyCore-0.3.11.jar` 与 `XyItems-1.0.5.jar` 放入服务器 `plugins/`。
 2. 启动服务器一次。
 3. 默认示例会释放到：
 
@@ -202,7 +204,7 @@ XyItems 不硬编码 `damage`、`health`、`防御力` 的游戏含义。它只�
 
 - 右键鉴定前先检查空格；没有空格时不扣除未鉴定物品，也不随机品质。
 - `/xyitem get` 与 `/xyitems give` 都会先检查容纳全部目标堆叠所需的空格；空间不足时不部分发放、不掉落到地面。
-- 提示统一读取 XyCore 的 `messages.prefix`，默认效果为：`[XyCore]您的背包已满无法容纳多余物品。`
+- 玩家聊天提示统一读取 XyCore 的 `messages.prefix`，默认效果为：`[XyCore]您的背包已满无法容纳多余物品。`
 - 后续 XyForge、XyEnhance、XyExchange 应调用 XyItems API 的 `hasDeliverySpace` 与 `deliverItems`，不要直接 `Inventory#addItem`。
 
 这条规则也适用于手中只剩一件待鉴定物品的情况，保证所有 XyItems 产物流程行为一致。
@@ -258,7 +260,7 @@ if (roll.isSuccess()) {
 产物位于：
 
 ```text
-build/libs/XyItems-1.0.4.jar
+build/libs/XyItems-1.0.5.jar
 ```
 
 ## 后续方向

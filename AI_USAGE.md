@@ -75,3 +75,10 @@
 - 默认 `ForgeItem/ExampleForgeItem.yml` 使用 `##` 中文注释，说明失败权重、品质权重、共享Lore和自定义变量写法。
 - 新增测试覆盖共享模板继承、中文品质键、`damage/health/撕裂/暴击率` 等任意变量读取。
 - 版本提升至1.0.4，并同步README、CHANGELOG、默认帮助文本和插件描述版本。
+
+## 1.0.5 维护记录
+
+- 根据服主确认的Xy系列聊天前缀统一规则，AI辅助将XyItems玩家消息前缀改为读取 `XyCoreApi#getMessagePrefix()`。
+- XyItems是强依赖XyCore的物品库，因此运行时要求XyCore 0.3.11+；启动阶段会检查前缀API，旧Core会明确拒绝启用。
+- 仅统一玩家聊天提示，后台日志继续保留XyItems插件名，便于控制台定位配置错误和重载失败。
+- 同步更新README、CHANGELOG、默认配置注释、插件版本和构建验证记录。

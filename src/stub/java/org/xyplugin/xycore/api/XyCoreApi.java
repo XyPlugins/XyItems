@@ -9,5 +9,7 @@ public interface XyCoreApi {
 
     ItemTagService getItemTags();
 
+    String getMessagePrefix();
+
     String getVersion();
 }
