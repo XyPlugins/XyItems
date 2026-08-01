@@ -6,6 +6,7 @@
 - `identify.qualities` 节点现在可以直接使用中文品质名；未写 `name` 时节点名就是品质显示名。
 - 保留旧格式兼容：单个品质仍可单独配置 `name/display-name/lore` 覆盖公共模板。
 - `attributes` 继续作为通用数字变量系统，不接入AttributePlus/AP接口；任意变量名只负责替换到最终Lore。
+- 新增 `unbreakable` 与 `hide-unbreakable` 物品根节点配置，支持武器、防具生成原版无限耐久标记。
 - 默认 `ForgeItem/ExampleForgeItem.yml` 改为8品质短格式，并使用 `##` 中文注释说明锻造失败、品质权重和变量关系。
 - 新增共享模板、中文品质键和任意变量回归测试。
 

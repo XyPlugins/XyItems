@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.xyplugin.xyitems.api.ForgeOutcomeProfile;
@@ -20,16 +21,26 @@ public final class ItemDefinition {
     private final short data;
     private final String displayName;
     private final List<String> lore;
+    private final boolean unbreakable;
+    private final boolean hideUnbreakable;
     private final Map<String, QualityDefinition> qualities;
     private final ForgeFailureDefinition forgeFailure;
 
     public ItemDefinition(String id, Material material, short data, String displayName, List<String> lore,
+                          Map<String, QualityDefinition> qualities, ForgeFailureDefinition forgeFailure) {
+        this(id, material, data, displayName, lore, false, true, qualities, forgeFailure);
+    }
+
+    public ItemDefinition(String id, Material material, short data, String displayName, List<String> lore,
+                          boolean unbreakable, boolean hideUnbreakable,
                           Map<String, QualityDefinition> qualities, ForgeFailureDefinition forgeFailure) {
         this.id = id;
         this.material = material;
         this.data = data;
         this.displayName = displayName;
         this.lore = Collections.unmodifiableList(new ArrayList<String>(lore));
+        this.unbreakable = unbreakable;
+        this.hideUnbreakable = hideUnbreakable;
         this.qualities = Collections.unmodifiableMap(new LinkedHashMap<String, QualityDefinition>(qualities));
         this.forgeFailure = forgeFailure;
     }
@@ -40,6 +51,14 @@ public final class ItemDefinition {
 
     public boolean isIdentifiable() {
         return !qualities.isEmpty();
+    }
+
+    public boolean isUnbreakable() {
+        return unbreakable;
+    }
+
+    public boolean shouldHideUnbreakable() {
+        return hideUnbreakable;
     }
 
     public Map<String, QualityDefinition> getQualities() {
@@ -106,6 +125,8 @@ public final class ItemDefinition {
                 renderedLore.add(Text.color(Text.replacePlaceholders(line, placeholders)));
             }
             meta.setLore(renderedLore);
+            meta.setUnbreakable(unbreakable);
+            if (unbreakable && hideUnbreakable) meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             item.setItemMeta(meta);
         }
         return item;

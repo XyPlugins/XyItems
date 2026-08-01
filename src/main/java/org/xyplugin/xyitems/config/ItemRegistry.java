@@ -124,9 +124,12 @@ public final class ItemRegistry {
 
         String displayName = section.getString("display-name", "&f" + id);
         List<String> lore = new ArrayList<String>(section.getStringList("lore"));
+        boolean unbreakable = section.getBoolean("unbreakable", false);
+        boolean hideUnbreakable = section.getBoolean("hide-unbreakable", true);
         Map<String, QualityDefinition> qualities = parseQualities(section, displayName, lore);
         ForgeFailureDefinition forgeFailure = parseForgeFailure(section, qualities);
-        return new ItemDefinition(id, material, (short) rawData, displayName, lore, qualities, forgeFailure);
+        return new ItemDefinition(id, material, (short) rawData, displayName, lore, unbreakable,
+                hideUnbreakable, qualities, forgeFailure);
     }
 
     private static ForgeFailureDefinition parseForgeFailure(ConfigurationSection itemSection,

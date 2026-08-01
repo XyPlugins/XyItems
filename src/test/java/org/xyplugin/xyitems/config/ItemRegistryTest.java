@@ -51,6 +51,10 @@ public class ItemRegistryTest {
         assertTrue(rolled.containsKey("health"));
         assertTrue(rolled.containsKey("撕裂"));
         assertTrue(rolled.containsKey("暴击率"));
+
+        ItemDefinition definition = loaded.getRegistry().find("example_forge_soul").get();
+        assertTrue(definition.isUnbreakable());
+        assertTrue(definition.shouldHideUnbreakable());
     }
 
     @Test

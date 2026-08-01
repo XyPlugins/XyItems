@@ -71,6 +71,7 @@
 - 解析层保持向后兼容；旧配置中每个品质单独写 `name/display-name/lore` 仍然有效，且优先覆盖公共模板。
 - 品质节点允许直接使用中文名，例如 `白描`、`萌黄`、`群青`；未写 `name` 时节点名就是 `<品质.名称>`。
 - 明确 `attributes` 不是AP接口，而是XyItems内部的通用数字变量。AI没有引入AttributePlus依赖，变量最终只替换进Lore，由服务器已有Lore属性规则读取。
+- 根据服主反馈锻造成品不是无限耐久，新增 `unbreakable` 与 `hide-unbreakable` 根节点配置；该能力放在XyItems生成层，确保命令获取、普通鉴定和锻造成品一致。
 - 默认 `ForgeItem/ExampleForgeItem.yml` 使用 `##` 中文注释，说明失败权重、品质权重、共享Lore和自定义变量写法。
 - 新增测试覆盖共享模板继承、中文品质键、`damage/health/撕裂/暴击率` 等任意变量读取。
 - 版本提升至1.0.4，并同步README、CHANGELOG、默认帮助文本和插件描述版本。

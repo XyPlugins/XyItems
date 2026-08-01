@@ -67,6 +67,8 @@ items:
   example_rune:
     material: NETHER_STAR
     display-name: '&f未鉴定的元素符文'
+    unbreakable: true
+    hide-unbreakable: true
     lore:
       - '&7右键鉴定。'
     identify:
@@ -90,6 +92,8 @@ items:
 - `material`：Bukkit 1.12.2 `Material` 名称。
 - `data`：旧版耐久值/子类型，通常为 `0`。
 - `display-name`、`lore`：基础或未鉴定状态的显示。
+- `unbreakable`：是否写入原版无限耐久标记，武器、防具建议设为 `true`。
+- `hide-unbreakable`：是否隐藏原版“无法破坏”提示，默认 `true`。
 - `identify.enabled`：启用主手右键鉴定。
 - `identify.display-name/lore`：所有品质共用的成品显示模板；单个品质仍可单独写 `display-name/lore` 覆盖。
 - `identify.qualities.<内部ID>`：一个品质结果。内部 ID 可以直接写 `白描`、`萌黄` 等中文名；未写 `name` 时节点名就是品质名。
@@ -127,6 +131,15 @@ items:
 `forge.failure.weight` 和所有 `identify.qualities.*.weight` 参加同一次最终抽取。权重不强制写成100，但GUI会按总和归一化显示百分比。
 
 `attributes` 只是随机数字变量，不对接AttributePlus/AP接口。XyItems会把 `<damage>`、`<health>`、`<撕裂>`、`<暴击率>` 等占位符替换成数字并写入Lore；最终属性是否生效由服务器现有的Lore属性规则决定。
+
+锻造武器、防具需要无限耐久时，在物品根节点写：
+
+```yaml
+unbreakable: true
+hide-unbreakable: true
+```
+
+这个标记会同时应用到未鉴定物品、普通鉴定结果和XyForgeCrafting锻造成品。
 
 `forge.failure.weight` 必须明确写出，可以填写 `0`，表示该物品锻造时不会抽中失败；完全漏写会被配置校验拒绝。品质仍然至少需要一个，并且每个品质权重必须大于0。例如只有一个“传说”品质时：
 

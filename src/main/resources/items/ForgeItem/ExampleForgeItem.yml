@@ -11,6 +11,11 @@ items:
     ## 未鉴定或基础状态的显示名称。
     display-name: '&f未鉴定的示例墨魂'
 
+    ## true表示该物品永不消耗原版耐久。锻造武器、防具建议开启。
+    unbreakable: true
+    ## true表示隐藏原版“无法破坏”提示，只保留你自己写的Lore风格。
+    hide-unbreakable: true
+
     ## 未鉴定或基础状态的Lore。
     lore:
       - '&7可由 XyForgeCrafting 锻造获得。'
