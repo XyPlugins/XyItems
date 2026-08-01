@@ -1,88 +1,120 @@
-# XyItems 锻造成品示例
-# 首次启动后生成到：plugins/XyItems/items/ForgeItem/ExampleForgeItem.yml
-# forge.failure 与六个品质的 weight 是一次最终结果权重，示例总和为 100。
-# 普通右键鉴定会忽略 forge.failure，只在六个品质之间按比例抽取。
+## XyItems 锻造成品示例
+## 首次启动后生成到：plugins/XyItems/items/ForgeItem/ExampleForgeItem.yml
+## 这是重构后的推荐短格式：公共名称和Lore只写一次，每个品质只写不同的权重、颜色和变量范围。
 
 items:
   example_forge_soul:
+    ## Bukkit 1.12.2 Material 名称。
     material: NETHER_STAR
     data: 0
+
+    ## 未鉴定或基础状态的显示名称。
     display-name: '&f未鉴定的示例墨魂'
+
+    ## 未鉴定或基础状态的Lore。
     lore:
       - '&7可由 XyForgeCrafting 锻造获得。'
 
-    # 锻造失败也参加同一次最终权重抽取。
+    ## 锻造失败权重。失败和下面全部品质参加同一次最终抽取。
     forge:
       failure:
-        weight: 30
+        weight: 20
         name: '锻造失败'
         color: '&c'
 
     identify:
+      ## true表示该物品可以生成确定品质和随机变量。
       enabled: true
+
+      ## 所有品质共用的成品名称。每个品质也可以单独写 display-name 覆盖这里。
+      display-name: '<品质.颜色>示例墨魂'
+
+      ## 所有品质共用的成品Lore。每个品质也可以单独写 lore 覆盖这里。
+      ## attributes 只是生成数字并替换 <变量>，不接 AttributePlus/AP 接口。
+      ## AP 是否生效由服务器现有的 Lore 属性规则决定。
+      lore:
+        - '&7类型: &f墨魂'
+        - '&7品质: <品质.颜色><品质.名称>'
+        - '&7------------[ &a属性&7 ]--------------'
+        - '&7攻击力: &c+<damage>'
+        - '&7生命力: &a+<health>'
+        - '&7撕裂: &c+<撕裂>'
+        - '&7暴击率: &e+<暴击率>%'
+        - '&7------------[ &e描述&7 ]--------------'
+        - '&7这是一件使用共享模板生成的锻造成品。'
+        - '&7----------------------------------'
+
+      ## 品质节点可以直接用中文名。节点名默认就是 <品质.名称>。
+      ## 当前权重总计：失败20 + 品质80 = 100。
       qualities:
-        1:
-          weight: 19.6
-          name: '白描'
-          color: '&f'
-          display-name: '<品质.颜色>示例墨魂'
-          lore:
-            - '&7品质: <品质.颜色><品质.名称>'
-            - '&7攻击力: &c+<damage>'
+        白描:
+          weight: 20
+          color: '&7'
           attributes:
             damage: { min: 3, max: 6, format: '0' }
+            health: { min: 10, max: 18, format: '0' }
+            撕裂: { min: 1, max: 2, format: '0' }
+            暴击率: { min: 1, max: 2, format: '0' }
 
-        2:
-          weight: 15.4
-          name: '萌黄'
+        萌黄:
+          weight: 16
           color: '&a'
-          display-name: '<品质.颜色>示例墨魂'
-          lore:
-            - '&7品质: <品质.颜色><品质.名称>'
-            - '&7攻击力: &c+<damage>'
           attributes:
             damage: { min: 7, max: 11, format: '0' }
+            health: { min: 20, max: 32, format: '0' }
+            撕裂: { min: 2, max: 3, format: '0' }
+            暴击率: { min: 2, max: 3, format: '0' }
 
-        3:
-          weight: 12.6
-          name: '气象'
-          color: '&b'
-          display-name: '<品质.颜色>示例墨魂'
-          lore:
-            - '&7品质: <品质.颜色><品质.名称>'
-            - '&7攻击力: &c+<damage>'
+        群青:
+          weight: 13
+          color: '&1'
           attributes:
             damage: { min: 12, max: 17, format: '0' }
+            health: { min: 35, max: 52, format: '0' }
+            撕裂: { min: 3, max: 4, format: '0' }
+            暴击率: { min: 3, max: 4, format: '0' }
 
-        4:
-          weight: 9.8
-          name: '归元'
-          color: '&d'
-          display-name: '<品质.颜色>示例墨魂'
-          lore:
-            - '&7品质: <品质.颜色><品质.名称>'
-            - '&7攻击力: &c+<damage>'
+        万象:
+          weight: 10
+          color: '&b'
           attributes:
             damage: { min: 18, max: 23, format: '0' }
+            health: { min: 40, max: 57, format: '0' }
+            撕裂: { min: 4, max: 5, format: '0' }
+            暴击率: { min: 4, max: 5, format: '0' }
 
-        5:
-          weight: 7
-          name: '传神'
+        传神:
+          weight: 8
           color: '&6'
-          display-name: '<品质.颜色>示例墨魂'
-          lore:
-            - '&7品质: <品质.颜色><品质.名称>'
-            - '&7攻击力: &c+<damage>'
           attributes:
             damage: { min: 24, max: 30, format: '0' }
+            health: { min: 58, max: 75, format: '0' }
+            撕裂: { min: 5, max: 6, format: '0' }
+            暴击率: { min: 5, max: 6, format: '0' }
 
-        6:
-          weight: 5.6
-          name: '浮世'
-          color: '&c'
-          display-name: '<品质.颜色>示例墨魂'
-          lore:
-            - '&7品质: <品质.颜色><品质.名称>'
-            - '&7攻击力: &c+<damage>'
+        极意:
+          weight: 6
+          color: '&d'
           attributes:
             damage: { min: 31, max: 40, format: '0' }
+            health: { min: 76, max: 96, format: '0' }
+            撕裂: { min: 6, max: 7, format: '0' }
+            暴击率: { min: 6, max: 7, format: '0' }
+
+        归元:
+          weight: 4
+          color: '&5'
+          attributes:
+            damage: { min: 41, max: 52, format: '0' }
+            health: { min: 97, max: 120, format: '0' }
+            撕裂: { min: 7, max: 8, format: '0' }
+            暴击率: { min: 7, max: 8, format: '0' }
+
+        浮世:
+          weight: 3
+          color: '&c'
+          attributes:
+            damage: { min: 53, max: 70, format: '0' }
+            health: { min: 121, max: 150, format: '0' }
+            撕裂: { min: 8, max: 10, format: '0' }
+            暴击率: { min: 8, max: 10, format: '0' }

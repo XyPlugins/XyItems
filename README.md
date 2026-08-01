@@ -1,6 +1,6 @@
-# XyItems 1.0.3
+# XyItems 1.0.4
 
-XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.3 提供带 NBT 身份标识的物品定义、右键随机鉴定、品质与属性渲染，以及供XyForgeCrafting读取的失败/结果最终权重与单次抽取API。
+XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.4 提供带 NBT 身份标识的物品定义、右键随机鉴定、品质与属性渲染，以及供XyForgeCrafting读取的失败/结果最终权重与单次抽取API。
 
 ## 运行环境
 
@@ -12,7 +12,7 @@ XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.
 
 ## 安装
 
-1. 将 `XyCore` 与 `XyItems-1.0.3.jar` 放入服务器 `plugins/`。
+1. 将 `XyCore` 与 `XyItems-1.0.4.jar` 放入服务器 `plugins/`。
 2. 启动服务器一次。
 3. 默认示例会释放到：
 
@@ -71,19 +71,15 @@ items:
       - '&7右键鉴定。'
     identify:
       enabled: true
+      display-name: '<品质.颜色><品质.名称>元素符文'
+      lore:
+        - '&f✦ 攻击力: &c<damage>'
       qualities:
-        normal:
+        普通:
           weight: 1
-          name: '普通'
           color: '&f'
-          display-name: '<品质.颜色><品质.名称>元素符文'
-          lore:
-            - '&f✦ 攻击力: &c<%damage%>'
           attributes:
-            damage:
-              min: 3
-              max: 6
-              format: '0'
+            damage: { min: 3, max: 6, format: '0' }
 ```
 
 完整的六品质示例及逐项中文注释见 [Example.yml](src/main/resources/items/Example/Example.yml)。
@@ -95,7 +91,8 @@ items:
 - `data`：旧版耐久值/子类型，通常为 `0`。
 - `display-name`、`lore`：基础或未鉴定状态的显示。
 - `identify.enabled`：启用主手右键鉴定。
-- `identify.qualities.<内部ID>`：一个品质结果。内部 ID 可以是 `1`、`bm`、`epic` 等任意非空名称。
+- `identify.display-name/lore`：所有品质共用的成品显示模板；单个品质仍可单独写 `display-name/lore` 覆盖。
+- `identify.qualities.<内部ID>`：一个品质结果。内部 ID 可以直接写 `白描`、`萌黄` 等中文名；未写 `name` 时节点名就是品质名。
 - `weight`：相对概率权重，不必等于百分比。
 - `attributes.<属性ID>`：可用 `{ min, max, format }` 定义随机值，也可直接写固定数值。
 
@@ -115,17 +112,21 @@ items:
         color: '&c'
     identify:
       enabled: true
+      display-name: '<品质.颜色>示例墨魂'
+      lore:
+        - '&7品质: <品质.颜色><品质.名称>'
+        - '&7攻击力: &c+<damage>'
       qualities:
-        1:
+        白描:
           weight: 19.6
-          name: '白描'
           color: '&f'
-          display-name: '<品质.颜色>示例墨魂'
-          lore:
-            - '&7品质: <品质.颜色><品质.名称>'
+          attributes:
+            damage: { min: 3, max: 6, format: '0' }
 ```
 
 `forge.failure.weight` 和所有 `identify.qualities.*.weight` 参加同一次最终抽取。权重不强制写成100，但GUI会按总和归一化显示百分比。
+
+`attributes` 只是随机数字变量，不对接AttributePlus/AP接口。XyItems会把 `<damage>`、`<health>`、`<撕裂>`、`<暴击率>` 等占位符替换成数字并写入Lore；最终属性是否生效由服务器现有的Lore属性规则决定。
 
 `forge.failure.weight` 必须明确写出，可以填写 `0`，表示该物品锻造时不会抽中失败；完全漏写会被配置校验拒绝。品质仍然至少需要一个，并且每个品质权重必须大于0。例如只有一个“传说”品质时：
 
@@ -137,14 +138,13 @@ forge:
     color: '&c'
 identify:
   enabled: true
+  display-name: '&6传说之剑'
+  lore:
+    - '&7必定锻造成功。'
   qualities:
-    legendary:
+    传说:
       weight: 1
-      name: '传说'
       color: '&6'
-      display-name: '&6传说之剑'
-      lore:
-        - '&7必定锻造成功。'
 ```
 
 最终归一化概率为失败 `0%`、传说 `100%`。普通鉴定同样只会得到传说结果。
@@ -163,7 +163,7 @@ identify:
 
 总和正好为100。普通右键鉴定会忽略 `forge.failure`，只在六个品质的70权重之间重新归一化，因此普通鉴定仍保持原来的 `28/22/18/14/10/8` 品质比例。
 
-首次启动1.0.2会额外生成：
+首次启动会额外生成：
 
 ```text
 plugins/XyItems/items/ForgeItem/ExampleForgeItem.yml
@@ -245,7 +245,7 @@ if (roll.isSuccess()) {
 产物位于：
 
 ```text
-build/libs/XyItems-1.0.3.jar
+build/libs/XyItems-1.0.4.jar
 ```
 
 ## 后续方向

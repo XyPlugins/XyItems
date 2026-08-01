@@ -26,12 +26,31 @@ public class ItemRegistryTest {
         Optional<ForgeOutcomeProfile> optional = definition.createForgeOutcomeProfile();
         assertTrue(optional.isPresent());
         ForgeOutcomeProfile profile = optional.get();
-        assertEquals(7, profile.getOutcomes().size());
+        assertEquals(9, profile.getOutcomes().size());
         assertEquals(100D, profile.getTotalWeight(), 0.000001D);
         assertTrue(profile.getOutcomes().get(0).isFailure());
-        assertEquals(30D, profile.getOutcomes().get(0).getProbability(), 0.000001D);
-        assertEquals(6, definition.getQualities().size());
-        assertTrue(definition.getQualities().containsKey("1"));
+        assertEquals(20D, profile.getOutcomes().get(0).getProbability(), 0.000001D);
+        assertEquals(8, definition.getQualities().size());
+        assertTrue(definition.getQualities().containsKey("白描"));
+    }
+
+    @Test
+    public void sharedIdentifyTemplateSupportsNamedQualitiesAndArbitraryAttributes() {
+        ItemRegistry.LoadResult loaded = ItemRegistry.load(new File("src/main/resources/items"),
+                Logger.getLogger("ItemRegistryTest"));
+        assertTrue(loaded.getErrors().toString(), loaded.isSuccess());
+
+        QualityDefinition quality = loaded.getRegistry().find("example_forge_soul").get()
+                .getQualities().get("群青");
+        assertEquals("群青", quality.getName());
+        assertEquals("<品质.颜色>示例墨魂", quality.getDisplayName());
+        assertTrue(quality.getLore().contains("&7撕裂: &c+<撕裂>"));
+
+        Map<String, String> rolled = quality.rollAttributes();
+        assertTrue(rolled.containsKey("damage"));
+        assertTrue(rolled.containsKey("health"));
+        assertTrue(rolled.containsKey("撕裂"));
+        assertTrue(rolled.containsKey("暴击率"));
     }
 
     @Test

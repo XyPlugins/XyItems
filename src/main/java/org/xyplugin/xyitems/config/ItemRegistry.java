@@ -169,6 +169,10 @@ public final class ItemRegistry {
             throw new IllegalArgumentException("identify.enabled 为 true 时必须至少配置一个 identify.qualities 节点。");
         }
 
+        String identifyDisplayName = identify.getString("display-name", fallbackName);
+        List<String> identifyLore = identify.isList("lore")
+                ? new ArrayList<String>(identify.getStringList("lore"))
+                : new ArrayList<String>(fallbackLore);
         Map<String, QualityDefinition> qualities = new LinkedHashMap<String, QualityDefinition>();
         for (String rawId : qualitySection.getKeys(false)) {
             ConfigurationSection section = qualitySection.getConfigurationSection(rawId);
@@ -185,10 +189,10 @@ public final class ItemRegistry {
 
             String name = section.getString("name", id);
             String color = section.getString("color", "&f");
-            String displayName = section.getString("display-name", fallbackName);
+            String displayName = section.getString("display-name", identifyDisplayName);
             List<String> lore = section.isList("lore")
                     ? new ArrayList<String>(section.getStringList("lore"))
-                    : new ArrayList<String>(fallbackLore);
+                    : new ArrayList<String>(identifyLore);
             qualities.put(id, new QualityDefinition(id, name, color, weight, displayName, lore,
                     parseAttributes(section.getConfigurationSection("attributes"))));
         }
