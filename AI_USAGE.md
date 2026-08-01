@@ -1,5 +1,13 @@
 # AI 使用记录
 
+## 1.0.6 维护记录
+
+- 根据服主最终确认，AI 将 XyItems 的前缀策略从“玩家发送者统一 XyCore”修正为语义分流。
+- `sendPlayer` 用于玩家玩法结果，调用 XyCore 统一前缀；`sendLocal` 用于管理、帮助和报错，保留 XyItems 自身前缀。
+- `/xyitem get` 的用法错误、物品不存在、数量非法、权限不足仍显示 XyItems；真正发放给玩家的“你获得了物品”显示 XyCore。
+- 本次不改变物品 NBT、鉴定、锻造权重、背包容量检查和 API 行为。
+- 已执行 `gradlew.bat compileJava --no-daemon` 通过，最终交付前还需参与全量 `clean build`。
+
 ## 使用范围
 
 本仓库在服务器服主的需求下，使用 AI 辅助完成 XyItems v1.0 的设计、实现、配置示例、文档和构建验证。目标是为 XY 插件生态提供轻量、配置化的 Spigot/Paper 1.12.2 物品库。

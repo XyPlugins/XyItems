@@ -19,6 +19,7 @@ import org.xyplugin.xyitems.util.Text;
 
 /** XyItems entry point for Paper/Spigot 1.12.2. */
 public final class XyItemsPlugin extends JavaPlugin {
+    private static final String DEFAULT_LOCAL_PREFIX = "&7[&bXyItems&7]&r ";
     private static XyItemsPlugin instance;
 
     private XyCoreBridge core;
@@ -98,13 +99,25 @@ public final class XyItemsPlugin extends JavaPlugin {
         core.registerProvider(provider);
     }
 
-    public void send(CommandSender sender, String message) {
+    /** 玩家玩法提示：有 XyCore 时使用 XyCore 统一前缀。 */
+    public void sendPlayer(Player player, String message) {
+        if (player == null || message == null || message.trim().isEmpty()) return;
+        core.send(player, message);
+    }
+
+    /** 管理/排错提示：保留 XyItems 自身前缀。 */
+    public void sendLocal(CommandSender sender, String message) {
         if (sender == null || message == null || message.trim().isEmpty()) return;
-        if (sender instanceof Player) {
-            core.send((Player) sender, message);
-        } else {
-            sender.sendMessage(Text.color(core.getPrefix() + message));
-        }
+        sender.sendMessage(Text.color(localPrefix() + message));
+    }
+
+    /** 默认用于命令反馈，按最终约定走插件自身前缀。 */
+    public void send(CommandSender sender, String message) {
+        sendLocal(sender, message);
+    }
+
+    private String localPrefix() {
+        return getConfig().getString("messages.prefix", DEFAULT_LOCAL_PREFIX);
     }
 
     public String message(String key) {

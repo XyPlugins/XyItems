@@ -1,5 +1,12 @@
 # XyItems Changelog
 
+## 1.0.6 - 2026-08-02
+
+- 按服主最终确认重构聊天前缀语义：玩家实际获得物品、背包满等玩法结果走 XyCore `messages.prefix`。
+- `/xyitems help/list/info/reload/get/give` 的权限不足、参数错误、物品不存在、管理员给予反馈等管理/排错提示保留 XyItems 自身前缀。
+- 新增 `sendPlayer` 与 `sendLocal` 两类发送入口，避免简单按发送者是否为玩家判断导致 help/报错混入系统提示。
+- 同步提升依赖说明至 XyCore 0.3.12，并更新 README、AI 使用记录和版本号。
+
 ## 1.0.5 - 2026-08-02
 
 - 玩家聊天提示前缀改为通过 `XyCoreApi#getMessagePrefix()` 统一读取 XyCore `messages.prefix`。

@@ -143,7 +143,7 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
         }
         List<ItemStack> stacks = plugin.getDelivery().split(prototype.get(), amount);
         if (!plugin.getDelivery().deliver(target, stacks)) {
-            plugin.send(target, plugin.message("inventory-full"));
+            plugin.sendPlayer(target, plugin.message("inventory-full"));
             if (sender != target) plugin.send(sender, plugin.message("inventory-full"));
             return true;
         }
@@ -154,7 +154,7 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
                     String.valueOf(amount), "{item}", definition.get().getId()));
         }
         if (!administrativeGive || sender != target) {
-            plugin.send(target, plugin.formatMessage("item-received", "{amount}", String.valueOf(amount),
+            plugin.sendPlayer(target, plugin.formatMessage("item-received", "{amount}", String.valueOf(amount),
                     "{item}", definition.get().getId()));
         }
         return true;
