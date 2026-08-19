@@ -33,6 +33,10 @@ public final class ItemRegistry {
     public static void ensureExampleFile(JavaPlugin plugin) {
         File example = new File(plugin.getDataFolder(), "items/Example/Example.yml");
         if (!example.exists()) plugin.saveResource("items/Example/Example.yml", false);
+        File chiyamopo = new File(plugin.getDataFolder(), "items/Example/Chiyamopo.yml");
+        if (!chiyamopo.exists() && !containsItemId(new File(plugin.getDataFolder(), "items"), "chiyamopo")) {
+            plugin.saveResource("items/Example/Chiyamopo.yml", false);
+        }
         File forgeExample = new File(plugin.getDataFolder(), "items/ForgeItem/ExampleForgeItem.yml");
         if (!forgeExample.exists()) plugin.saveResource("items/ForgeItem/ExampleForgeItem.yml", false);
     }
@@ -128,8 +132,11 @@ public final class ItemRegistry {
         boolean hideUnbreakable = section.getBoolean("hide-unbreakable", true);
         Map<String, QualityDefinition> qualities = parseQualities(section, displayName, lore);
         ForgeFailureDefinition forgeFailure = parseForgeFailure(section, qualities);
+        ConfigurationSection identify = section.getConfigurationSection("identify");
+        StrengthDefinition strength = parseStrength(identify);
+        String actionName = identify == null ? "鉴定" : identify.getString("action-name", "鉴定");
         return new ItemDefinition(id, material, (short) rawData, displayName, lore, unbreakable,
-                hideUnbreakable, qualities, forgeFailure);
+                hideUnbreakable, qualities, forgeFailure, strength, actionName);
     }
 
     private static ForgeFailureDefinition parseForgeFailure(ConfigurationSection itemSection,
@@ -207,6 +214,38 @@ public final class ItemRegistry {
         return qualities;
     }
 
+    private static StrengthDefinition parseStrength(ConfigurationSection identify) {
+        if (identify == null) return StrengthDefinition.disabled();
+        ConfigurationSection section = identify.getConfigurationSection("strength");
+        if (section == null || !section.getBoolean("enabled", false)) return StrengthDefinition.disabled();
+
+        int barLength = section.getInt("bar-length", 10);
+        if (barLength < 1 || barLength > 64) {
+            throw new IllegalArgumentException("identify.strength.bar-length 必须在1到64之间。");
+        }
+        String filled = section.getString("filled", "&c");
+        String empty = section.getString("empty", "&7");
+        String percentFormat = section.getString("percent-format", "0.0");
+        Map<String, Double> weights = new LinkedHashMap<String, Double>();
+        ConfigurationSection weightSection = section.getConfigurationSection("weights");
+        if (weightSection != null) {
+            for (String key : weightSection.getKeys(false)) {
+                double weight = weightSection.getDouble(key, 0D);
+                if (Double.isNaN(weight) || Double.isInfinite(weight) || weight < 0D) {
+                    throw new IllegalArgumentException("identify.strength.weights." + key
+                            + " 必须是大于或等于0的有限数值。");
+                }
+                weights.put(key, weight);
+            }
+        }
+        try {
+            return new StrengthDefinition(true, barLength, filled, empty, percentFormat, weights);
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("identify.strength.percent-format 无效: "
+                    + exception.getMessage());
+        }
+    }
+
     private static Map<String, NumberRange> parseAttributes(ConfigurationSection section) {
         if (section == null) return Collections.emptyMap();
         Map<String, NumberRange> attributes = new LinkedHashMap<String, NumberRange>();
@@ -250,6 +289,25 @@ public final class ItemRegistry {
                 files.add(child);
             }
         }
+    }
+
+    private static boolean containsItemId(File directory, String expectedId) {
+        List<File> files = new ArrayList<File>();
+        collectYamlFiles(directory, files);
+        for (File file : files) {
+            YamlConfiguration yaml = new YamlConfiguration();
+            try {
+                yaml.load(file);
+            } catch (IOException | InvalidConfigurationException ignored) {
+                continue;
+            }
+            ConfigurationSection root = yaml.getConfigurationSection("items");
+            if (root == null) continue;
+            for (String id : root.getKeys(false)) {
+                if (expectedId.equalsIgnoreCase(normalizeId(id))) return true;
+            }
+        }
+        return false;
     }
 
     private static String relativePath(File root, File file) {

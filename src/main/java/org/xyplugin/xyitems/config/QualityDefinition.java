@@ -52,10 +52,41 @@ public final class QualityDefinition {
     }
 
     public Map<String, String> rollAttributes() {
+        return rollAttributesWithStrength().getValues();
+    }
+
+    /** Rolls each attribute independently and keeps its raw range position for strength. */
+    public RolledAttributes rollAttributesWithStrength() {
         Map<String, String> values = new LinkedHashMap<String, String>();
+        Map<String, Double> strengths = new LinkedHashMap<String, Double>();
         for (Map.Entry<String, NumberRange> entry : attributes.entrySet()) {
-            values.put(entry.getKey(), entry.getValue().roll());
+            NumberRange range = entry.getValue();
+            double raw = range.rollValue();
+            values.put(entry.getKey(), range.format(raw));
+            strengths.put(entry.getKey(), range.strengthPercent(raw));
         }
-        return values;
+        return new RolledAttributes(values, strengths);
+    }
+
+    public Map<String, NumberRange> getAttributes() {
+        return attributes;
+    }
+
+    public static final class RolledAttributes {
+        private final Map<String, String> values;
+        private final Map<String, Double> strengths;
+
+        private RolledAttributes(Map<String, String> values, Map<String, Double> strengths) {
+            this.values = Collections.unmodifiableMap(new LinkedHashMap<String, String>(values));
+            this.strengths = Collections.unmodifiableMap(new LinkedHashMap<String, Double>(strengths));
+        }
+
+        public Map<String, String> getValues() {
+            return values;
+        }
+
+        public Map<String, Double> getStrengths() {
+            return strengths;
+        }
     }
 }

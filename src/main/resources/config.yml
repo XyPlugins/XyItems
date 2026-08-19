@@ -1,4 +1,4 @@
-# XyItems v1.0.6 global configuration.
+# XyItems v1.0.7 global configuration.
 # Item definitions are loaded recursively from plugins/XyItems/items/**/*.yml.
 
 settings:
@@ -17,12 +17,13 @@ messages:
   inventory-full: '&c您的背包已满无法容纳多余物品。'
   item-given: '&a已给予 &f{player} &ax{amount} &f{item}&a。'
   item-received: '&a获得了 &fx{amount} &f{item}&a。'
-  identified: '&a鉴定成功: &f{item}'
+  # {action} 会读取物品 identify.action-name，例如“净化成功”。
+  identified: '&a{action}成功: &f{item}'
   reloaded: '&aXyItems 已重载，共加载 &f{count} &a个物品定义。'
   reload-failed: '&c重载失败，已保留当前正在使用的物品配置。'
   no-items: '&e当前没有已加载的物品定义。'
   help:
-    - '&bXyItems &7v1.0.6'
+    - '&bXyItems &7v1.0.7'
     - '&e/xyitem get <物品ID> [数量] &7获得物品'
     - '&e/xyitems list &7查看已加载物品'
     - '&e/xyitems give <玩家> <物品ID> [数量] &7给予物品'

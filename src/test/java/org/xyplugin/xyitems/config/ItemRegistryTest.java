@@ -20,7 +20,7 @@ public class ItemRegistryTest {
         ItemRegistry.LoadResult loaded = ItemRegistry.load(new File("src/main/resources/items"),
                 Logger.getLogger("ItemRegistryTest"));
         assertTrue(loaded.getErrors().toString(), loaded.isSuccess());
-        assertEquals(3, loaded.getRegistry().size());
+        assertEquals(4, loaded.getRegistry().size());
 
         ItemDefinition definition = loaded.getRegistry().find("example_forge_soul").get();
         Optional<ForgeOutcomeProfile> optional = definition.createForgeOutcomeProfile();
@@ -55,6 +55,21 @@ public class ItemRegistryTest {
         ItemDefinition definition = loaded.getRegistry().find("example_forge_soul").get();
         assertTrue(definition.isUnbreakable());
         assertTrue(definition.shouldHideUnbreakable());
+    }
+
+    @Test
+    public void chiyamopoSupportsConfigurableActionAndStrengthPlaceholders() {
+        ItemRegistry.LoadResult loaded = ItemRegistry.load(new File("src/main/resources/items"),
+                Logger.getLogger("ItemRegistryTest"));
+        assertTrue(loaded.getErrors().toString(), loaded.isSuccess());
+        ItemDefinition definition = loaded.getRegistry().find("chiyamopo").get();
+        assertEquals("净化", definition.getIdentifyActionName());
+        assertTrue(definition.getStrength().isEnabled());
+        assertEquals("&cllllllllll", definition.getStrength().renderBar(100D));
+        assertEquals("&clllllll&7lll", definition.getStrength().renderBar(70D));
+        assertEquals("&cl&7lllllllll", definition.getStrength().renderBar(1D));
+        assertEquals("&7llllllllll", definition.getStrength().renderBar(0D));
+        assertEquals("100.0", definition.getStrength().formatPercent(100D));
     }
 
     @Test

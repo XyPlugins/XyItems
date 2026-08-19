@@ -70,6 +70,15 @@ public final class ItemIdentifyListener implements Listener {
         }
 
         player.updateInventory();
-        plugin.send(player, plugin.formatMessage("identified", "{item}", identified.get().getQualityName()));
+        String actionName = definition.get().getIdentifyActionName();
+        String message = plugin.formatMessage("identified", "{item}", identified.get().getQualityName(),
+                "{action}", actionName);
+        // Existing config.yml files are not overwritten on upgrade. Keep old "鉴定成功" templates
+        // compatible with per-item action names while leaving unrelated custom messages untouched.
+        String template = plugin.message("identified");
+        if (template != null && !template.contains("{action}") && !"鉴定".equals(actionName)) {
+            message = message.replace("鉴定", actionName);
+        }
+        plugin.send(player, message);
     }
 }

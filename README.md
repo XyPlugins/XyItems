@@ -1,6 +1,6 @@
-# XyItems 1.0.6
+# XyItems 1.0.7
 
-XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.6 提供带 NBT 身份标识的物品定义、右键随机鉴定、品质与属性渲染、供XyForgeCrafting读取的失败/结果最终权重与单次抽取API，并按语义区分玩家玩法提示与管理提示前缀。
+XyItems 是 XY 系列的配置化物品库，面向 Spigot/Paper 1.12.2。v1.0.7 提供带 NBT 身份标识的物品定义、可自定义动作名称的右键随机鉴定、品质/属性/强度渲染、供XyForgeCrafting读取的失败/结果最终权重与单次抽取API，并按语义区分玩家玩法提示与管理提示前缀。
 
 ## 运行环境
 
@@ -14,12 +14,13 @@ XyItems 不使用 SQL，也不保存玩家数据。它必须依赖 XyCore 的 1.
 
 ## 安装
 
-1. 将 `XyCore-0.3.12.jar` 与 `XyItems-1.0.6.jar` 放入服务器 `plugins/`。
+1. 将 `XyCore-0.3.12.jar` 与 `XyItems-1.0.7.jar` 放入服务器 `plugins/`。
 2. 启动服务器一次。
 3. 默认示例会释放到：
 
    ```text
    plugins/XyItems/items/Example/Example.yml
+   plugins/XyItems/items/Example/Chiyamopo.yml
    ```
 
 4. 修改物品配置后执行 `/xyitems reload`。
@@ -56,6 +57,7 @@ XyItems 会递归加载 `plugins/XyItems/items/` 下全部 `.yml` 与 `.yaml` �
 ```text
 plugins/XyItems/items/
 ├─ Example/Example.yml
+├─ Example/Chiyamopo.yml
 ├─ ForgeItem/ExampleForgeItem.yml
 ├─ Runes/fire.yml
 ├─ Weapons/swords.yml
@@ -86,7 +88,7 @@ items:
             damage: { min: 3, max: 6, format: '0' }
 ```
 
-完整的六品质示例及逐项中文注释见 [Example.yml](src/main/resources/items/Example/Example.yml)。
+完整的六品质示例及逐项中文注释见 [Example.yml](src/main/resources/items/Example/Example.yml)；赤牙墨魄强度示例见 [Chiyamopo.yml](src/main/resources/items/Example/Chiyamopo.yml)。
 
 ### 关键字段
 
@@ -97,10 +99,35 @@ items:
 - `unbreakable`：是否写入原版无限耐久标记，武器、防具建议设为 `true`。
 - `hide-unbreakable`：是否隐藏原版“无法破坏”提示，默认 `true`。
 - `identify.enabled`：启用主手右键鉴定。
+- `identify.action-name`：这件物品的操作名称，支持“鉴定、净化、拯救、重构”等自定义文字。
 - `identify.display-name/lore`：所有品质共用的成品显示模板；单个品质仍可单独写 `display-name/lore` 覆盖。
 - `identify.qualities.<内部ID>`：一个品质结果。内部 ID 可以直接写 `白描`、`萌黄` 等中文名；未写 `name` 时节点名就是品质名。
 - `weight`：相对概率权重，不必等于百分比。
 - `attributes.<属性ID>`：可用 `{ min, max, format }` 定义随机值，也可直接写固定数值。
+
+### 强度显示
+
+在 `identify` 下增加 `strength` 即可同时显示百分比和条码。强度只比较抽中的当前品质，不会用低品质的范围压低高品质结果；当前品质所有参与属性都达到 `max` 时为 `100.0%`。
+
+```yaml
+identify:
+  action-name: '净化'
+  strength:
+    enabled: true
+    bar-length: 10
+    filled: '&c'
+    empty: '&7'
+    percent-format: '0.0'
+    weights:
+      damage: 1
+      health: 1
+  lore:
+    - '&7品质: <品质.颜色><品质.名称>'
+    - '&7强度: &f<strength.percent>%'
+    - '&7强度条: <strength.bar>'
+```
+
+属性会先独立随机，再按 `weights` 加权平均。未列出的属性默认权重为 `1`，写成 `0` 可排除。`filled` 和 `empty` 只写颜色时自动使用十格字符 `l`，也可以继续写成 `&cl`、`&7l` 或自定义字符；默认条码长度为10。强度百分比和实际随机属性都会写入 XyCore NBT，只在生成/鉴定时计算，不增加常驻任务。
 
 ## 锻造最终概率
 
@@ -193,6 +220,8 @@ XyItems 不硬编码 `damage`、`health`、`防御力` 的游戏含义。它只�
 支持以下占位符形式：
 
 - 品质：`<品质.颜色>`、`<品质.名称>`、`<quality.color>`、`<quality.name>`
+- 动作名称：`<identify.action>`、`<动作.名称>`，例如 `净化`
+- 强度：`<strength.percent>`、`<strength.bar>`、`<强度.百分比>`、`<强度.条>`
 - 任意属性键 `damage`：`<damage>`、`%damage%`、`<%damage%>`
 - 中文属性键也可直接使用，例如 `<防御力>`
 
@@ -217,7 +246,7 @@ XyItems 不硬编码 `damage`、`health`、`防御力` 的游戏含义。它只�
 xyitems:<物品ID>
 ```
 
-创建基础物品，例如 `xyitems:example_rune`。XyCore 负责 NBT 标签底层实现，XyItems 使用这些标签记录物品 ID、未鉴定状态和鉴定品质，名称或 Lore 相同的仿制物不会被误判为 XyItems 物品。鉴定时实际随机出的属性也会写入 NBT，后续插件可通过 `getRolledAttributes` 读取，不需要反向解析 Lore。
+创建基础物品，例如 `xyitems:example_rune`。XyCore 负责 NBT 标签底层实现，XyItems 使用这些标签记录物品 ID、未鉴定状态、鉴定品质、实际属性和强度，名称或 Lore 相同的仿制物不会被误判为 XyItems 物品。鉴定时实际随机出的属性和强度也会写入 NBT，后续插件可通过API读取，不需要反向解析展示文本。
 
 ### Java API
 
@@ -230,7 +259,7 @@ if (api.hasDeliverySpace(player, 1) && item.isPresent()) {
 }
 ```
 
-`createItem` 只构造物品，不会修改玩家背包；真正交付必须使用 `deliverItems`，以维持严格容量规则。已鉴定物品的原始随机值可通过 `api.getRolledAttributes(item)` 读取。
+`createItem` 只构造物品，不会修改玩家背包；真正交付必须使用 `deliverItems`，以维持严格容量规则。已鉴定物品的原始随机值可通过 `api.getRolledAttributes(item)` 读取，强度可通过 `api.getStrengthPercent(item)` 读取。
 
 锻造插件使用以下API：
 
@@ -260,7 +289,7 @@ if (roll.isSuccess()) {
 产物位于：
 
 ```text
-build/libs/XyItems-1.0.6.jar
+build/libs/XyItems-1.0.7.jar
 ```
 
 ## 后续方向

@@ -82,7 +82,8 @@ public final class XyItemsCommand implements CommandExecutor, TabCompleter {
         }
         ItemDefinition item = definition.get();
         plugin.send(sender, "&b物品 ID: &f" + item.getId());
-        plugin.send(sender, "&b鉴定: &f" + (item.isIdentifiable() ? "开启" : "关闭"));
+        plugin.send(sender, "&b" + item.getIdentifyActionName() + ": &f"
+                + (item.isIdentifiable() ? "开启" : "关闭"));
         plugin.send(sender, "&b配置文件: &f" + plugin.getRegistry().getSource(item.getId()));
         return true;
     }

@@ -31,6 +31,22 @@ items:
       ## true表示该物品可以生成确定品质和随机变量。
       enabled: true
 
+      ## 每件物品可以自定义这个动作名称；这里示范使用“净化”。
+      action-name: '净化'
+
+      ## 可选的品质内强度。满格表示当前品质的属性都接近/达到各自max。
+      strength:
+        enabled: true
+        bar-length: 10
+        filled: '&c'
+        empty: '&7'
+        percent-format: '0.0'
+        weights:
+          damage: 1
+          health: 1
+          撕裂: 1
+          暴击率: 1
+
       ## 所有品质共用的成品名称。每个品质也可以单独写 display-name 覆盖这里。
       display-name: '<品质.颜色>示例墨魂'
 
@@ -40,6 +56,8 @@ items:
       lore:
         - '&7类型: &f墨魂'
         - '&7品质: <品质.颜色><品质.名称>'
+        - '&7强度: &f<strength.percent>%'
+        - '&7强度条: <strength.bar>'
         - '&7------------[ &a属性&7 ]--------------'
         - '&7攻击力: &c+<damage>'
         - '&7生命力: &a+<health>'

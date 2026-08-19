@@ -84,6 +84,11 @@ public final class XyItemsApiImpl implements XyItemsApi {
     }
 
     @Override
+    public Optional<Double> getStrengthPercent(ItemStack item) {
+        return plugin.getItemFactory().getStrengthPercent(item);
+    }
+
+    @Override
     public boolean isXyItem(ItemStack item) {
         return getItemId(item).isPresent();
     }

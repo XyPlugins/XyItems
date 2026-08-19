@@ -24,6 +24,11 @@ public final class NumberRange {
     }
 
     public String roll() {
+        return format(rollValue());
+    }
+
+    /** Rolls the raw value before applying the configured display format. */
+    public double rollValue() {
         double value;
         if (min == max) {
             value = min;
@@ -33,10 +38,21 @@ public final class NumberRange {
         } else {
             value = ThreadLocalRandom.current().nextDouble(min, Math.nextUp(max));
         }
+        return value;
+    }
+
+    /** Formats a value with the same stable format used by {@link #roll()}. */
+    public String format(double value) {
         if (Math.abs(value - Math.rint(value)) < 0.00000001D && "0.##".equals(format)) {
             return String.valueOf((long) Math.rint(value));
         }
         return formatter().format(value);
+    }
+
+    /** Returns the value's relative position in this range as a percentage. */
+    public double strengthPercent(double value) {
+        if (max <= min) return 100D;
+        return Math.max(0D, Math.min(100D, (value - min) * 100D / (max - min)));
     }
 
     private DecimalFormat formatter() {

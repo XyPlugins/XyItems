@@ -17,6 +17,7 @@ public final class ItemFactory {
     public static final String STATE_TAG = "xyitems-state";
     public static final String QUALITY_TAG = "xyitems-quality";
     public static final String ATTRIBUTES_TAG = "xyitems-attributes";
+    public static final String STRENGTH_TAG = "xyitems-strength";
     public static final String STATE_UNIDENTIFIED = "unidentified";
     public static final String STATE_READY = "ready";
     public static final String STATE_IDENTIFIED = "identified";
@@ -64,7 +65,12 @@ public final class ItemFactory {
         item = tags.setString(item, STATE_TAG, STATE_IDENTIFIED);
         item = tags.setString(item, QUALITY_TAG, built.getQuality().getId());
         item = tags.setString(item, ATTRIBUTES_TAG, encodeAttributes(built.getAttributes()));
-        return Optional.of(new IdentificationResult(item, built.getQuality().getId(), built.getQuality().getName()));
+        if (definition.getStrength().isEnabled()) {
+            item = tags.setString(item, STRENGTH_TAG,
+                    String.valueOf(built.getStrengthPercent()));
+        }
+        return Optional.of(new IdentificationResult(item, built.getQuality().getId(),
+                built.getQuality().getName(), built.getStrengthPercent(), built.getStrengthBar()));
     }
 
     public Optional<String> getItemId(ItemStack item) {
@@ -94,6 +100,17 @@ public final class ItemFactory {
             }
         }
         return Collections.unmodifiableMap(attributes);
+    }
+
+    /** Returns the immutable strength roll saved on an identified item, if enabled for its definition. */
+    public Optional<Double> getStrengthPercent(ItemStack item) {
+        Optional<String> value = core.getItemTags().getString(item, STRENGTH_TAG);
+        if (!value.isPresent()) return Optional.empty();
+        try {
+            return Optional.of(Double.parseDouble(value.get()));
+        } catch (NumberFormatException ignored) {
+            return Optional.empty();
+        }
     }
 
     public boolean isUnidentified(ItemStack item, ItemDefinition definition) {
@@ -127,11 +144,16 @@ public final class ItemFactory {
         private final ItemStack item;
         private final String qualityId;
         private final String qualityName;
+        private final double strengthPercent;
+        private final String strengthBar;
 
-        private IdentificationResult(ItemStack item, String qualityId, String qualityName) {
+        private IdentificationResult(ItemStack item, String qualityId, String qualityName,
+                                     double strengthPercent, String strengthBar) {
             this.item = item;
             this.qualityId = qualityId;
             this.qualityName = qualityName;
+            this.strengthPercent = strengthPercent;
+            this.strengthBar = strengthBar;
         }
 
         public ItemStack getItem() {
@@ -144,6 +166,14 @@ public final class ItemFactory {
 
         public String getQualityName() {
             return qualityName;
+        }
+
+        public double getStrengthPercent() {
+            return strengthPercent;
+        }
+
+        public String getStrengthBar() {
+            return strengthBar;
         }
     }
 }

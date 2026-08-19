@@ -25,6 +25,8 @@ public final class ItemDefinition {
     private final boolean hideUnbreakable;
     private final Map<String, QualityDefinition> qualities;
     private final ForgeFailureDefinition forgeFailure;
+    private final StrengthDefinition strength;
+    private final String identifyActionName;
 
     public ItemDefinition(String id, Material material, short data, String displayName, List<String> lore,
                           Map<String, QualityDefinition> qualities, ForgeFailureDefinition forgeFailure) {
@@ -34,6 +36,14 @@ public final class ItemDefinition {
     public ItemDefinition(String id, Material material, short data, String displayName, List<String> lore,
                           boolean unbreakable, boolean hideUnbreakable,
                           Map<String, QualityDefinition> qualities, ForgeFailureDefinition forgeFailure) {
+        this(id, material, data, displayName, lore, unbreakable, hideUnbreakable, qualities,
+                forgeFailure, StrengthDefinition.disabled(), "鉴定");
+    }
+
+    public ItemDefinition(String id, Material material, short data, String displayName, List<String> lore,
+                          boolean unbreakable, boolean hideUnbreakable,
+                          Map<String, QualityDefinition> qualities, ForgeFailureDefinition forgeFailure,
+                          StrengthDefinition strength, String identifyActionName) {
         this.id = id;
         this.material = material;
         this.data = data;
@@ -43,6 +53,9 @@ public final class ItemDefinition {
         this.hideUnbreakable = hideUnbreakable;
         this.qualities = Collections.unmodifiableMap(new LinkedHashMap<String, QualityDefinition>(qualities));
         this.forgeFailure = forgeFailure;
+        this.strength = strength == null ? StrengthDefinition.disabled() : strength;
+        this.identifyActionName = identifyActionName == null || identifyActionName.trim().isEmpty()
+                ? "鉴定" : identifyActionName;
     }
 
     public String getId() {
@@ -59,6 +72,14 @@ public final class ItemDefinition {
 
     public boolean shouldHideUnbreakable() {
         return hideUnbreakable;
+    }
+
+    public StrengthDefinition getStrength() {
+        return strength;
+    }
+
+    public String getIdentifyActionName() {
+        return identifyActionName;
     }
 
     public Map<String, QualityDefinition> getQualities() {
@@ -84,7 +105,7 @@ public final class ItemDefinition {
     }
 
     public ItemStack createUnidentified(int amount) {
-        return createItem(displayName, lore, Collections.<String, String>emptyMap(), amount);
+        return createItem(displayName, lore, actionPlaceholders(), amount);
     }
 
     public IdentifiedResult createIdentified(int amount) {
@@ -101,16 +122,46 @@ public final class ItemDefinition {
 
     private IdentifiedResult createIdentified(QualityDefinition quality, int amount) {
 
-        Map<String, String> rolledAttributes = quality.rollAttributes();
+        QualityDefinition.RolledAttributes rolled = quality.rollAttributesWithStrength();
+        Map<String, String> rolledAttributes = rolled.getValues();
         Map<String, String> placeholders = new LinkedHashMap<String, String>();
         placeholders.put("品质.名称", quality.getName());
         placeholders.put("品质.颜色", quality.getColor());
         placeholders.put("quality.name", quality.getName());
         placeholders.put("quality.color", quality.getColor());
+        placeholders.putAll(actionPlaceholders());
         placeholders.putAll(rolledAttributes);
 
+        double strengthPercent = calculateStrength(rolled.getStrengths());
+        String strengthText = strength.isEnabled() ? strength.formatPercent(strengthPercent) : "";
+        String strengthBar = strength.isEnabled() ? strength.renderBar(strengthPercent) : "";
+        placeholders.put("strength.percent", strengthText);
+        placeholders.put("strength.bar", strengthBar);
+        placeholders.put("强度.百分比", strengthText);
+        placeholders.put("强度.条", strengthBar);
+
         ItemStack item = createItem(quality.getDisplayName(), quality.getLore(), placeholders, amount);
-        return new IdentifiedResult(item, quality, rolledAttributes);
+        return new IdentifiedResult(item, quality, rolledAttributes, strengthPercent, strengthBar);
+    }
+
+    private Map<String, String> actionPlaceholders() {
+        Map<String, String> placeholders = new LinkedHashMap<String, String>();
+        placeholders.put("identify.action", identifyActionName);
+        placeholders.put("动作.名称", identifyActionName);
+        return placeholders;
+    }
+
+    private double calculateStrength(Map<String, Double> attributeStrengths) {
+        if (!strength.isEnabled() || attributeStrengths.isEmpty()) return 0D;
+        double weighted = 0D;
+        double total = 0D;
+        for (Map.Entry<String, Double> entry : attributeStrengths.entrySet()) {
+            double weight = strength.getWeight(entry.getKey());
+            if (weight <= 0D || Double.isNaN(weight) || Double.isInfinite(weight)) continue;
+            weighted += entry.getValue() * weight;
+            total += weight;
+        }
+        return total <= 0D ? 0D : Math.max(0D, Math.min(100D, weighted / total));
     }
 
     private ItemStack createItem(String nameTemplate, List<String> loreTemplates,
@@ -152,11 +203,16 @@ public final class ItemDefinition {
         private final ItemStack item;
         private final QualityDefinition quality;
         private final Map<String, String> attributes;
+        private final double strengthPercent;
+        private final String strengthBar;
 
-        private IdentifiedResult(ItemStack item, QualityDefinition quality, Map<String, String> attributes) {
+        private IdentifiedResult(ItemStack item, QualityDefinition quality, Map<String, String> attributes,
+                                 double strengthPercent, String strengthBar) {
             this.item = item;
             this.quality = quality;
             this.attributes = Collections.unmodifiableMap(new LinkedHashMap<String, String>(attributes));
+            this.strengthPercent = strengthPercent;
+            this.strengthBar = strengthBar;
         }
 
         public ItemStack getItem() {
@@ -169,6 +225,14 @@ public final class ItemDefinition {
 
         public Map<String, String> getAttributes() {
             return attributes;
+        }
+
+        public double getStrengthPercent() {
+            return strengthPercent;
+        }
+
+        public String getStrengthBar() {
+            return strengthBar;
         }
     }
 }

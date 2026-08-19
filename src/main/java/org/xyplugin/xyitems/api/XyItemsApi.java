@@ -26,6 +26,9 @@ public interface XyItemsApi {
     /** Exact attribute rolls persisted by XyItems during identification. */
     Map<String, String> getRolledAttributes(ItemStack item);
 
+    /** Strength percentage persisted during identification, when the item enables strength display. */
+    Optional<Double> getStrengthPercent(ItemStack item);
+
     boolean isXyItem(ItemStack item);
 
     boolean isUnidentified(ItemStack item);
